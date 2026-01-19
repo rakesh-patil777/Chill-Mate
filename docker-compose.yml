@@ -1,0 +1,24 @@
+version: '3.9'
+services:
+  api:
+    build: ./server
+    container_name: chillmate-api
+    ports:
+      - "4000:4000"
+    environment:
+      - PORT=4000
+      - JWT_SECRET=${JWT_SECRET}
+      - ALLOWED_EMAIL_DOMAINS=${ALLOWED_EMAIL_DOMAINS}
+    volumes:
+      - api_data:/app
+  web:
+    build: ./web
+    container_name: chillmate-web
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+volumes:
+  api_data:
+
+
