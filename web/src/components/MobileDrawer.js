@@ -1,0 +1,20 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { NavLink } from "react-router-dom";
+export default function MobileDrawer({ open, mode, onClose, onModeChange, datingLinks, campusLinks, notif, onLogout, }) {
+    if (!open)
+        return null;
+    const linkClass = ({ isActive }) => [
+        "block w-full rounded-xl px-4 py-3 text-sm font-semibold transition",
+        isActive
+            ? "bg-pink-600 text-white shadow-sm"
+            : "bg-white text-slate-700 hover:bg-pink-50 hover:text-pink-700",
+    ].join(" ");
+    return (_jsxs("div", { className: "md:hidden fixed inset-0 z-[70]", children: [_jsx("button", { type: "button", className: "absolute inset-0 bg-black/45", onClick: onClose, "aria-label": "Close navigation drawer" }), _jsxs("aside", { className: "absolute right-0 top-0 h-full w-[86%] max-w-sm bg-gradient-to-b from-rose-50 to-white shadow-2xl border-l border-white/70 p-4 overflow-y-auto", children: [_jsxs("div", { className: "flex items-center justify-between", children: [_jsx("p", { className: "text-lg font-black text-slate-900", children: "Navigation" }), _jsx("button", { type: "button", onClick: onClose, className: "rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700", children: "Close" })] }), _jsxs("div", { className: "mt-4 rounded-2xl bg-white/80 border border-slate-100 p-2 flex gap-2", children: [_jsx("button", { type: "button", onClick: () => onModeChange("dating"), className: `flex-1 rounded-xl px-3 py-2 text-sm font-semibold transition ${mode === "dating"
+                                    ? "bg-pink-600 text-white"
+                                    : "text-slate-700 hover:bg-pink-50"}`, children: "Dating" }), _jsx("button", { type: "button", onClick: () => onModeChange("campus"), className: `flex-1 rounded-xl px-3 py-2 text-sm font-semibold transition ${mode === "campus"
+                                    ? "bg-pink-600 text-white"
+                                    : "text-slate-700 hover:bg-pink-50"}`, children: "Campus" })] }), _jsxs("section", { className: "mt-5", children: [_jsx("h3", { className: "text-xs uppercase tracking-[0.2em] text-slate-500 mb-2", children: "Dating" }), _jsx("div", { className: "space-y-2", children: datingLinks.map((item) => (_jsx(NavLink, { to: item.to, onClick: onClose, className: linkClass, children: item.label }, item.to))) })] }), _jsxs("section", { className: "mt-5", children: [_jsx("h3", { className: "text-xs uppercase tracking-[0.2em] text-slate-500 mb-2", children: "Campus" }), _jsx("div", { className: "space-y-2", children: campusLinks.map((item) => (_jsx(NavLink, { to: item.to, onClick: onClose, className: linkClass, children: item.label }, item.to))) })] }), _jsxs("section", { className: "mt-5", children: [_jsx("h3", { className: "text-xs uppercase tracking-[0.2em] text-slate-500 mb-2", children: "Global" }), _jsxs("div", { className: "space-y-2", children: [_jsxs(NavLink, { to: `/chat?mode=${mode}`, onClick: onClose, className: linkClass, children: ["Chat", notif.newMessageCount > 0 && (_jsx("span", { className: "ml-2 inline-flex min-w-[20px] h-5 px-1 rounded-full bg-sky-500 text-white text-[11px] items-center justify-center", children: notif.newMessageCount > 99 ? "99+" : notif.newMessageCount }))] }), _jsxs(NavLink, { to: `/alerts?mode=${mode}`, onClick: onClose, className: linkClass, children: ["Alerts", notif.total > 0 && (_jsx("span", { className: "ml-2 inline-flex min-w-[20px] h-5 px-1 rounded-full bg-rose-500 text-white text-[11px] items-center justify-center", children: notif.total > 99 ? "99+" : notif.total }))] }), _jsx(NavLink, { to: "/profile", onClick: onClose, className: linkClass, children: "Profile" }), _jsx("button", { type: "button", onClick: () => {
+                                            onClose();
+                                            onLogout();
+                                        }, className: "block w-full rounded-xl px-4 py-3 text-left text-sm font-semibold bg-rose-600 text-white hover:bg-rose-700 transition", children: "Logout" })] })] })] })] }));
+}

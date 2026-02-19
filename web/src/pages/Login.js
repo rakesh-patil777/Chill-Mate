@@ -1,28 +1,139 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import { useState } from 'react';
-import { api } from '../api';
-import { useAuth } from '../auth';
-import { Link, useNavigate } from 'react-router-dom';
-export default function Login() {
-    const [collegeId, setCollegeId] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState(null);
-    const { setToken } = useAuth();
-    const nav = useNavigate();
-    async function onSubmit(e) {
+import { useMemo, useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { api } from "../api";
+import { useAuth } from "../auth";
+const COLLEGE_EMAIL_REGEX = /^[a-zA-Z]+\.[a-zA-Z0-9]+@presidencyuniversity\.in$/i;
+const STRONG_PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^()_\-+=])[A-Za-z\d@$!%*?&#^()_\-+=]{8,}$/;
+function getFriendlyError(err, fallback) {
+    const raw = err instanceof Error ? err.message : "";
+    if (!raw)
+        return fallback;
+    const lower = raw.toLowerCase();
+    if (lower.includes("invalid") ||
+        lower.includes("unauthorized") ||
+        lower.includes("wrong")) {
+        return "Invalid credentials. Please check and try again.";
+    }
+    if (lower.includes("network") || lower.includes("failed to fetch")) {
+        return "Network issue. Please try again.";
+    }
+    if (lower.includes("not found")) {
+        return "Service is currently unavailable.";
+    }
+    return fallback;
+}
+const INVALID_COLLEGE_EMAIL_MSG = "Please use your official Presidency University email in format name.collegeid@presidencyuniversity.in";
+function ForgotPasswordModal({ open, onClose, }) {
+    const [email, setEmail] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
+    if (!open)
+        return null;
+    async function handleSubmit(e) {
         e.preventDefault();
-        setError(null);
-        try {
-            const { token } = await api('/auth/login', {
-                method: 'POST',
-                body: JSON.stringify({ collegeId, password })
-            });
-            setToken(token);
-            nav('/discover');
+        setError("");
+        setSuccess("");
+        if (!email.trim()) {
+            setError("Email is required.");
+            return;
         }
-        catch (e) {
-            setError('Invalid credentials');
+        setLoading(true);
+        try {
+            const result = await api("/auth/forgot", {
+                method: "POST",
+                body: JSON.stringify({ email: email.trim() }),
+            });
+            setSuccess(result?.message || "Reset instructions sent to your email.");
+        }
+        catch (err) {
+            setError(getFriendlyError(err, "Could not send reset email right now."));
+        }
+        finally {
+            setLoading(false);
         }
     }
-    return (_jsx("div", { className: "min-h-screen grid place-items-center bg-chill-50 px-4 py-8", children: _jsxs("form", { onSubmit: onSubmit, className: "bg-white p-6 sm:p-8 rounded-xl shadow w-full max-w-md", children: [_jsx("h1", { className: "text-2xl sm:text-3xl font-mono font-bold text-chill-600 mb-6 text-center", children: "Chill Mate" }), _jsxs("label", { className: "block mb-3", children: [_jsx("span", { className: "text-sm text-gray-600", children: "College ID" }), _jsx("input", { value: collegeId, onChange: e => setCollegeId(e.target.value), className: "mt-1 w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-chill-500 focus:border-transparent transition-all", required: true })] }), _jsxs("label", { className: "block mb-4", children: [_jsx("span", { className: "text-sm text-gray-600", children: "Password" }), _jsx("input", { type: "password", value: password, onChange: e => setPassword(e.target.value), className: "mt-1 w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-chill-500 focus:border-transparent transition-all", required: true })] }), error && _jsx("div", { className: "text-red-600 text-sm mb-3 p-2 bg-red-50 rounded", children: error }), _jsx("button", { className: "w-full bg-chill-500 hover:bg-chill-600 text-white rounded-lg p-3 font-medium transition-colors", children: "Log In" }), _jsxs("p", { className: "text-sm mt-4 text-center", children: ["New here? ", _jsx(Link, { to: "/register", className: "text-chill-600 hover:text-chill-700 font-medium", children: "Create account" })] })] }) }));
+    return (_jsx("div", { className: "fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm", children: _jsxs("div", { className: "w-full max-w-md rounded-2xl border border-white/70 bg-white p-6 shadow-2xl", children: [_jsxs("div", { className: "flex items-center justify-between gap-3", children: [_jsx("h3", { className: "text-xl font-bold text-slate-900", children: "Forgot password?" }), _jsx("button", { type: "button", onClick: onClose, className: "rounded-lg px-2.5 py-1.5 text-sm font-semibold text-slate-500 hover:bg-slate-100", "aria-label": "Close forgot password modal", children: "Close" })] }), _jsx("p", { className: "mt-2 text-sm text-slate-600", children: "Enter your college email and we will send reset instructions." }), _jsxs("form", { onSubmit: handleSubmit, className: "mt-4 space-y-3", children: [_jsx("input", { type: "email", value: email, onChange: (e) => setEmail(e.target.value), placeholder: "you@yourcollege.edu", className: "w-full rounded-xl border border-slate-200 px-3 py-2.5 text-slate-800 placeholder:text-slate-400 outline-none transition focus:border-pink-500 focus:ring-2 focus:ring-pink-200" }), error && _jsx("p", { className: "text-sm text-rose-600", children: error }), success && _jsx("p", { className: "text-sm text-emerald-600", children: success }), _jsx("button", { type: "submit", disabled: loading, className: "w-full rounded-xl bg-gradient-to-r from-pink-600 to-rose-500 px-4 py-2.5 font-semibold text-white shadow-lg shadow-pink-100 transition disabled:opacity-60", children: loading ? "Sending..." : "Send reset link" })] })] }) }));
+}
+export default function Login() {
+    const [identifier, setIdentifier] = useState("");
+    const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [formError, setFormError] = useState({});
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [forgotOpen, setForgotOpen] = useState(false);
+    const identifierRef = useRef(null);
+    const passwordRef = useRef(null);
+    const navigate = useNavigate();
+    const { setToken } = useAuth();
+    const isPasswordStrong = useMemo(() => (password ? STRONG_PASSWORD_REGEX.test(password) : true), [password]);
+    function validate() {
+        const next = {};
+        if (!identifier.trim())
+            next.identifier = "College email is required.";
+        else if (!COLLEGE_EMAIL_REGEX.test(identifier.trim())) {
+            next.identifier = INVALID_COLLEGE_EMAIL_MSG;
+        }
+        if (!password.trim())
+            next.password = "Password is required.";
+        setFormError(next);
+        return Object.keys(next).length === 0;
+    }
+    async function handleLogin(e) {
+        e.preventDefault();
+        setError("");
+        if (!validate())
+            return;
+        setLoading(true);
+        try {
+            const data = await api("/auth/login", {
+                method: "POST",
+                body: JSON.stringify({ collegeId: identifier.trim(), password }),
+            });
+            if (!data?.token) {
+                setError("Login failed. Please try again.");
+                return;
+            }
+            localStorage.setItem("token", data.token);
+            setToken(data.token);
+            navigate("/discover");
+        }
+        catch (err) {
+            setError(getFriendlyError(err, "Login failed. Please try again."));
+        }
+        finally {
+            setLoading(false);
+        }
+    }
+    return (_jsxs("div", { className: "min-h-screen bg-gradient-to-br from-rose-200 via-pink-200 to-purple-200", children: [_jsx("style", { children: `
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(12px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes blobFloat {
+          0%, 100% { transform: translate(0,0) scale(1); }
+          50% { transform: translate(18px, -16px) scale(1.05); }
+        }
+      ` }), _jsxs("div", { className: "grid min-h-screen md:grid-cols-2", children: [_jsxs("aside", { className: "relative hidden min-h-screen overflow-hidden md:block", style: {
+                            backgroundImage: "linear-gradient(180deg, rgba(23,18,44,0.62), rgba(43,15,45,0.68)), url('https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=1800&q=80')",
+                            backgroundSize: "cover",
+                            backgroundPosition: "center",
+                        }, children: [_jsx("div", { className: "absolute -left-10 top-12 h-56 w-56 rounded-full bg-pink-300/30 blur-3xl animate-[blobFloat_10s_ease-in-out_infinite]" }), _jsx("div", { className: "absolute bottom-16 right-6 h-64 w-64 rounded-full bg-rose-300/30 blur-3xl animate-[blobFloat_13s_ease-in-out_infinite]" }), _jsx("div", { className: "relative z-10 mx-auto flex h-full max-w-xl items-center px-10", children: _jsxs("div", { className: "text-white", children: [_jsx("p", { className: "inline-block rounded-full border border-white/30 bg-white/10 px-4 py-1 text-sm font-medium backdrop-blur", children: "Chill Mate" }), _jsx("h1", { className: "mt-6 text-5xl font-black leading-tight drop-shadow-lg xl:text-6xl", children: "Where Campus Meets Connection" }), _jsx("p", { className: "mt-4 max-w-lg text-lg text-white/90", children: "Build meaningful campus bonds through curated matching, verified student profiles, and real chill plans." })] }) })] }), _jsx("main", { className: "flex items-center justify-center px-4 py-10 sm:px-8", children: _jsxs("div", { className: "w-full max-w-[420px] animate-[fadeInUp_0.55s_ease] rounded-3xl border border-white/30 bg-white/70 p-6 shadow-2xl shadow-pink-300/30 backdrop-blur-xl sm:p-8", children: [_jsx("h2", { className: "text-3xl font-black text-slate-900", children: "Welcome back" }), _jsx("p", { className: "mt-1 text-slate-600", children: "Log in to continue to Chill Mate" }), error && (_jsx("p", { className: "mt-4 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700", children: error })), _jsxs("form", { onSubmit: handleLogin, className: "mt-5 space-y-4", children: [_jsxs("div", { children: [_jsx("label", { className: "mb-1 block text-sm font-semibold text-slate-700", children: "College Email ID" }), _jsx("input", { ref: identifierRef, value: identifier, onChange: (e) => {
+                                                        setIdentifier(e.target.value);
+                                                        if (formError.identifier) {
+                                                            setFormError((prev) => ({ ...prev, identifier: undefined }));
+                                                        }
+                                                    }, onKeyDown: (e) => {
+                                                        if (e.key === "Enter") {
+                                                            e.preventDefault();
+                                                            passwordRef.current?.focus();
+                                                        }
+                                                    }, placeholder: "you@yourcollege.edu", className: "w-full rounded-xl border border-slate-200 bg-white/90 px-3 py-2.5 text-slate-800 placeholder:text-slate-400 outline-none transition focus:border-pink-500 focus:ring-2 focus:ring-pink-200", "aria-invalid": Boolean(formError.identifier), autoComplete: "username" }), _jsx("p", { className: "mt-1 text-xs text-slate-500", children: "Format: name.collegeid@presidencyuniversity.in" }), formError.identifier && (_jsx("p", { className: "mt-1 text-xs text-rose-600", children: formError.identifier }))] }), _jsxs("div", { children: [_jsx("label", { className: "mb-1 block text-sm font-semibold text-slate-700", children: "Password" }), _jsxs("div", { className: "relative", children: [_jsx("input", { ref: passwordRef, type: showPassword ? "text" : "password", value: password, onChange: (e) => {
+                                                                setPassword(e.target.value);
+                                                                if (formError.password) {
+                                                                    setFormError((prev) => ({ ...prev, password: undefined }));
+                                                                }
+                                                            }, placeholder: "Enter your password", className: "w-full rounded-xl border border-slate-200 bg-white/90 px-3 py-2.5 pr-12 text-slate-800 placeholder:text-slate-400 outline-none transition focus:border-pink-500 focus:ring-2 focus:ring-pink-200", "aria-invalid": Boolean(formError.password), autoComplete: "current-password" }), _jsx("button", { type: "button", onClick: () => setShowPassword((v) => !v), "aria-label": showPassword ? "Hide password" : "Show password", className: "absolute right-2 top-1/2 -translate-y-1/2 rounded-lg px-2 py-1 text-sm font-semibold text-slate-500 transition hover:bg-slate-100", children: showPassword ? "Hide" : "Show" })] }), _jsx("p", { className: `mt-1 text-xs ${isPasswordStrong ? "text-slate-500" : "text-amber-700"}`, children: "Use at least 8 chars with upper, lower, number, and special symbol." }), formError.password && (_jsx("p", { className: "mt-1 text-xs text-rose-600", children: formError.password }))] }), _jsx("div", { className: "flex justify-end", children: _jsx("button", { type: "button", onClick: () => setForgotOpen(true), className: "text-sm font-semibold text-pink-700 transition hover:text-pink-800", children: "Forgot password?" }) }), _jsx("button", { type: "submit", disabled: loading, className: "w-full rounded-xl bg-gradient-to-r from-pink-600 to-rose-500 px-4 py-2.5 font-semibold text-white shadow-lg shadow-pink-200 transition duration-200 hover:scale-[1.01] hover:shadow-pink-300 disabled:opacity-60", children: loading ? (_jsxs("span", { className: "inline-flex items-center gap-2", children: [_jsx("span", { className: "inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" }), "Logging in..."] })) : ("Log in") })] }), _jsxs("p", { className: "mt-6 text-center text-sm text-slate-700", children: ["Don't have an account?", " ", _jsx(Link, { to: "/register", className: "font-bold text-pink-700 transition hover:underline hover:text-pink-800", children: "Register" })] })] }) })] }), _jsx(ForgotPasswordModal, { open: forgotOpen, onClose: () => setForgotOpen(false) })] }));
 }

@@ -1,55 +1,69 @@
-# Chill Mate
+# Chill Mate 💖
 
-Full-stack app for college students (18+) to meet, plan chill hangouts, study events (hackathons, tech events), send invitations, and manage profiles with hobbies/interests/habits.
+Tinder-style swipe-based matching app for students. Discover → swipe left/right → mutual like creates a match → view matches and edit profile.
 
 ## Tech
-- API: Node.js, Express, TypeScript, better-sqlite3, JWT
-- Web: React (Vite), TypeScript, Tailwind CSS
-- Deploy: Docker, docker-compose
+- **Backend:** Node.js, Express, TypeScript, SQLite (better-sqlite3), JWT
+- **Frontend:** React, TypeScript, Vite, Tailwind CSS
+- **Deploy:** Docker optional (see below)
 
-## Local (no Docker)
-1. Install Node 18+.
-2. Server:
-   - `cd server`
-   - `npm i`
-   - `npm run dev`
-3. Web:
-   - `cd web`
-   - `npm i`
-   - `npm run dev`
-4. Open `http://localhost:5173`.
+## Quick start (local)
 
-## Docker (recommended)
-- Create `.env` in project root:
+**One-time setup (from project root):**
+```bash
+npm run setup
 ```
-JWT_SECRET=replace-with-long-random-secret
-ALLOWED_EMAIL_DOMAINS=gmail.com,outlook.com,edu.in,ac.in
+
+**Run API + web (browser opens automatically):**
+```bash
+npm run dev
 ```
-- Build & run:
-```
+- API: `http://localhost:4000`
+- Web: `http://localhost:5173`
+
+Optional: create `server/.env` with `JWT_SECRET=your-secret` (defaults to a dev key if omitted).
+
+## API (Phase 1 MVP)
+
+| Method | Route | Auth | Body / Notes |
+|--------|--------|------|----------------|
+| POST | `/auth/register` | No | `{ collegeId, password, fullName, age, gender? }` → `{ ok }` |
+| POST | `/auth/login` | No | `{ collegeId, password }` → `{ token }` |
+| GET | `/profiles/discover` | Yes | Excludes self and already swiped → `User[]` |
+| GET | `/profiles/me` | Yes | Current user + profile |
+| PUT | `/profiles/me` | Yes | `{ fullName?, age?, bio?, hobbies?, interests?, avatarUrl? }` |
+| POST | `/likes` | Yes | `{ targetUserId, liked }` → `{ success, match? }` |
+| GET | `/matches` | Yes | List of matches (name, age, avatar, bio) |
+| POST | `/matches/check` | Yes | `{ targetUserId }` → `{ matched }` |
+
+## DB schema (SQLite)
+
+- **users** – id, collegeId, password, fullName, age, gender, createdAt
+- **profiles** – userId (PK), bio, hobbies, interests, avatarUrl
+- **likes** – (fromUserId, toUserId) PK, liked (0/1), createdAt
+- **matches** – id, userA, userB, createdAt; UNIQUE(userA, userB)
+
+Indexes on `likes.fromUserId`, `likes.toUserId`, and `matches(userA, userB)`.
+
+## Improvements made (refactor)
+
+- **Backend:** Single `matches` table with id; JWT verified in middleware and `req.user.id` used everywhere; discover excludes current user and already swiped; likes use `fromUserId`/`toUserId` and upsert; mutual like creates match once (userA < userB); auth mounted at `/auth`.
+- **Frontend:** Central `api.ts` and `API_BASE`; auth header on all protected calls; SwipeCards use cancel-ref to avoid race; protected routes redirect to login; Profile page loads/saves via GET/PUT `/profiles/me`; Matches page uses `/matches` and shows empty state; Login updates auth context and uses `Link`; Register uses `API_BASE` and `Link`.
+- **UX:** Loading and empty states; profile form with avatar URL preview; rounded cards and gradients; nav shows Login/Register when logged out and Discover/Profile/Matches/Logout when logged in.
+
+## Future (Phase 2+)
+
+- Real-time chat (WebSocket), online status, notifications
+- Docker production build, env configs, security hardening
+
+## Docker
+
+Create `.env` in project root with `JWT_SECRET` and optionally `ALLOWED_EMAIL_DOMAINS`. Then:
+
+```bash
 docker compose up --build
 ```
 - Web: `http://localhost:8080`
 - API: `http://localhost:4000`
 
-## API Summary
-- POST `/auth/register` { collegeId, password, age, fullName, email?, gender? } → { token }
-- POST `/auth/login` { collegeId, password } → { token }
-- GET `/profiles/me` (auth)
-- PUT `/profiles/me` (auth) { bio?, hobbies?, interests?, habits?, avatarUrl? }
-- POST `/chill` (auth) { title, description?, location?, startAt?, maxGuests? }
-- GET `/chill/browse` (auth)
-- POST `/study` (auth) { title, topic?, location?, startAt?, maxParticipants? }
-- GET `/study/browse` (auth)
-- POST `/invitations` (auth) { toUserId, context: 'chill'|'study'|'friend', referenceId? }
-- GET `/invitations/incoming` (auth)
-- POST `/invitations/:id/respond` (auth) { status: 'accepted'|'declined' }
-- POST `/friends/:friendUserId` (auth)
-- GET `/friends` (auth)
-
-## Notes
-- Registration enforces 18+ and validates `collegeId` format. Optionally restricts email domains.
-- SQLite file `chillmate.db` stored in API container/workdir.
-- Set `web/.env` with `VITE_API_BASE` to point the web app to your API.
-
-
+Set `web/.env` with `VITE_API_BASE=http://localhost:4000` (or your API URL) if the frontend runs outside Docker.

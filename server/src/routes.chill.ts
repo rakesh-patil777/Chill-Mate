@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import db from './db.js';
 import { z } from 'zod';
-import { AuthenticatedRequest } from './middleware.js';
+import { auth, AuthenticatedRequest } from './middleware.js';
 
 const router = Router();
 
@@ -13,7 +13,7 @@ const CreateSchema = z.object({
 	maxGuests: z.number().int().positive().optional()
 });
 
-router.post('/', (req: AuthenticatedRequest, res) => {
+router.post('/', auth, (req: AuthenticatedRequest, res) => {
 	const parsed = CreateSchema.safeParse(req.body);
 	if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 	const hostUserId = req.user!.id;
@@ -27,9 +27,12 @@ router.post('/', (req: AuthenticatedRequest, res) => {
 	res.json({ id: info.lastInsertRowid });
 });
 
-router.get('/browse', (_req, res) => {
+router.get('/browse', auth, (_req, res) => {
 	const plans = db.prepare(`
-		SELECT cp.*, u.fullName AS hostName
+		SELECT
+			cp.*,
+			u.fullName AS hostName,
+			(SELECT COUNT(*) FROM plan_attendees pa WHERE pa.planId = cp.id) AS attendeeCount
 		FROM chill_plans cp JOIN users u ON u.id = cp.hostUserId
 		ORDER BY cp.createdAt DESC
 		LIMIT 100

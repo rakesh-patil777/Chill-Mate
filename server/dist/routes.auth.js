@@ -1,75 +1,151 @@
-import { Router } from 'express';
-import db from './db.js';
-import { z } from 'zod';
-import { hashPassword, comparePassword, signJwt, isAdult, isValidCollegeId, isAllowedEmail } from './utils.js';
+import { Router } from "express";
+import db from "./db.js";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { createNotification } from "./notifications.utils.js";
+import rateLimit from "express-rate-limit";
 const router = Router();
-const env = process.env;
-const JWT_SECRET = env.JWT_SECRET || 'dev-secret';
-const ALLOWED_EMAIL_DOMAINS = (env.ALLOWED_EMAIL_DOMAINS ?? '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
-// Schema updated to support real college ID formats like RAKESH.20231CSE0670@presidencyuniversity.in
-const RegisterSchema = z.object({
-    collegeId: z.string().min(4).max(255), // Increased to 255 to support long college IDs
-    password: z.string().min(6).max(100),
-    age: z.number().int().nonnegative(),
-    fullName: z.string().min(2).max(80),
-    email: z.string().email().optional(),
-    gender: z.string().optional()
+const JWT_SECRET = process.env.JWT_SECRET;
+const COLLEGE_EMAIL_REGEX = /^[a-zA-Z]+\.[a-zA-Z0-9]+@presidencyuniversity\.in$/i;
+const STRONG_PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^()_\-+=])[A-Za-z\d@$!%*?&#^()_\-+=]{8,}$/;
+if (!JWT_SECRET) {
+    throw new Error("JWT_SECRET is required. Set it in your environment.");
+}
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: "Too many login attempts. Try again later." },
 });
-router.post('/register', async (req, res) => {
-    const parsed = RegisterSchema.safeParse(req.body);
-    if (!parsed.success)
-        return res.status(400).json({ error: parsed.error.flatten() });
-    const { collegeId, password, age, fullName, email, gender } = parsed.data;
-    // Normalize collegeId: trim whitespace and convert to lowercase for consistent storage
-    const normalizedCollegeId = collegeId.trim().toLowerCase();
-    if (!isAdult(age))
-        return res.status(400).json({ error: 'You must be 18+' });
-    if (!isValidCollegeId(normalizedCollegeId))
-        return res.status(400).json({ error: 'Invalid college ID' });
-    if (!isAllowedEmail(email, ALLOWED_EMAIL_DOMAINS))
-        return res.status(400).json({ error: 'Email domain not allowed' });
+const registerLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 20,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: "Too many registration attempts. Try again later." },
+});
+function toIsoDay(date = new Date()) {
+    return date.toISOString().slice(0, 10);
+}
+function yesterdayIsoDay(todayIso) {
+    const d = new Date(`${todayIso}T00:00:00.000Z`);
+    d.setUTCDate(d.getUTCDate() - 1);
+    return toIsoDay(d);
+}
+/* REGISTER */
+router.post("/register", registerLimiter, async (req, res) => {
     try {
-        const passwordHash = await hashPassword(password);
-        const stmt = db.prepare(`
-			INSERT INTO users (collegeId, email, passwordHash, fullName, age, gender)
-			VALUES (?, ?, ?, ?, ?, ?)
-		`);
-        const info = stmt.run(normalizedCollegeId, email ?? null, passwordHash, fullName, age, gender ?? null);
-        db.prepare(`INSERT INTO profiles (userId, bio, hobbies, interests, habits, avatarUrl)
-			VALUES (?, '', '[]', '[]', '[]', '')`).run(info.lastInsertRowid);
-        const token = signJwt({ id: info.lastInsertRowid, collegeId: normalizedCollegeId }, JWT_SECRET);
+        const { collegeId, password, fullName, age, gender, referrerId } = req.body;
+        if (!collegeId || !password || !fullName || !age) {
+            return res.status(400).json({ error: "Missing required fields" });
+        }
+        if (!COLLEGE_EMAIL_REGEX.test(String(collegeId).trim())) {
+            return res
+                .status(400)
+                .json({ error: "Only Presidency University email IDs are allowed." });
+        }
+        if (!STRONG_PASSWORD_REGEX.test(String(password))) {
+            return res.status(400).json({
+                error: "Password must be at least 8 chars and include uppercase, lowercase, number, and special character.",
+            });
+        }
+        const exists = db
+            .prepare("SELECT * FROM users WHERE collegeId = ?")
+            .get(collegeId);
+        if (exists) {
+            return res.status(400).json({ error: "User already exists" });
+        }
+        const hashed = await bcrypt.hash(password, 10);
+        const userCount = Number(db.prepare("SELECT COUNT(*) as c FROM users").get().c);
+        const launchMode = String(db
+            .prepare("SELECT value FROM app_config WHERE key = 'launchMode'")
+            .get()?.value || "open");
+        const parsedReferrerId = Number(referrerId);
+        const hasValidReferrer = Number.isInteger(parsedReferrerId) && parsedReferrerId > 0;
+        const registeringAsBootstrapAdmin = userCount === 0;
+        if (launchMode === "closed" && !registeringAsBootstrapAdmin) {
+            return res.status(403).json({ error: "Registrations are currently closed" });
+        }
+        if (launchMode === "invite-only" && !registeringAsBootstrapAdmin && !hasValidReferrer) {
+            return res.status(403).json({ error: "Invite required to register right now" });
+        }
+        const isAdmin = userCount === 0 ? 1 : 0;
+        const validReferrerId = Number.isInteger(parsedReferrerId) && parsedReferrerId > 0
+            ? parsedReferrerId
+            : null;
+        if (validReferrerId !== null) {
+            const referrerExists = db
+                .prepare("SELECT id FROM users WHERE id = ?")
+                .get(validReferrerId);
+            if (!referrerExists) {
+                return res.status(400).json({ error: "Invalid referrerId" });
+            }
+        }
+        const insertUser = db
+            .prepare(`INSERT INTO users (collegeId, password, fullName, age, gender, isAdmin, referredBy)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`)
+            .run(collegeId, hashed, fullName, age, gender, isAdmin, validReferrerId);
+        const userId = insertUser.lastInsertRowid;
+        db.prepare(`INSERT INTO profiles (userId) VALUES (?)`).run(userId);
+        if (validReferrerId !== null) {
+            db.prepare(`UPDATE users
+         SET inviteCount = inviteCount + 1,
+             reputationBoost = reputationBoost + 1
+         WHERE id = ?`).run(validReferrerId);
+        }
+        res.json({ ok: true });
+    }
+    catch (err) {
+        console.error("Register error:", err);
+        res.status(500).json({ error: "Server error during registration" });
+    }
+});
+/* LOGIN */
+router.post("/login", loginLimiter, async (req, res) => {
+    try {
+        const { collegeId, password } = req.body;
+        if (!COLLEGE_EMAIL_REGEX.test(String(collegeId).trim())) {
+            return res
+                .status(400)
+                .json({ error: "Only Presidency University email IDs are allowed." });
+        }
+        const user = db
+            .prepare("SELECT * FROM users WHERE collegeId = ?")
+            .get(collegeId);
+        if (!user) {
+            return res.status(400).json({ error: "User not found" });
+        }
+        const match = await bcrypt.compare(password, user.password);
+        if (!match) {
+            return res.status(400).json({ error: "Wrong password" });
+        }
+        const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: "7d" });
+        const today = toIsoDay();
+        const yesterday = yesterdayIsoDay(today);
+        const shouldWarn = String(user.lastActiveDate ?? "") === yesterday &&
+            Number(user.swipeStreak ?? 0) > 0;
+        if (shouldWarn) {
+            const alreadyCreatedToday = db
+                .prepare(`SELECT 1 FROM notifications
+           WHERE userId = ? AND type = 'streak_warning' AND date(createdAt) = date('now')
+           LIMIT 1`)
+                .get(user.id);
+            if (!alreadyCreatedToday) {
+                createNotification({
+                    userId: user.id,
+                    type: "streak_warning",
+                    title: "Don’t lose your streak 🔥",
+                    message: "Swipe today to keep it alive.",
+                    emit: false,
+                });
+            }
+        }
         res.json({ token });
     }
-    catch (e) {
-        if (e.code === 'SQLITE_CONSTRAINT_UNIQUE')
-            return res.status(409).json({ error: 'College ID already registered' });
-        res.status(500).json({ error: 'Server error' });
-    }
-});
-const LoginSchema = z.object({
-    collegeId: z.string(),
-    password: z.string()
-});
-router.post('/login', async (req, res) => {
-    const parsed = LoginSchema.safeParse(req.body);
-    if (!parsed.success)
-        return res.status(400).json({ error: parsed.error.flatten() });
-    const { collegeId, password } = parsed.data;
-    try {
-        // Use case-insensitive comparison with trimming to handle whitespace and case differences
-        // This works with both old data (mixed case) and new data (normalized to lowercase)
-        const normalizedCollegeId = collegeId.trim().toLowerCase();
-        const user = db.prepare('SELECT * FROM users WHERE LOWER(TRIM(collegeId)) = ?').get(normalizedCollegeId);
-        if (!user)
-            return res.status(401).json({ error: 'Invalid credentials' });
-        const valid = await comparePassword(password, user.passwordHash);
-        if (!valid)
-            return res.status(401).json({ error: 'Invalid credentials' });
-        const token = signJwt({ id: user.id, collegeId: user.collegeId }, JWT_SECRET);
-        res.json({ token });
-    }
-    catch (e) {
-        res.status(500).json({ error: 'Server error' });
+    catch (err) {
+        console.error("Login error:", err);
+        res.status(500).json({ error: "Server error during login" });
     }
 });
 export default router;

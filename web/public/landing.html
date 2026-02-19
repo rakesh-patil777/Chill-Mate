@@ -1,0 +1,796 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chill Mate — Connect, Discover, Chill.</title>
+    <meta
+      name="description"
+      content="Find friends, join plans, and make memories on campus with Chill Mate."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --pink: #ec4899;
+        --rose: #fb7185;
+        --purple: #8b5cf6;
+        --violet: #7c3aed;
+        --amber: #f59e0b;
+        --white: #ffffff;
+        --ink: #1f1633;
+        --muted: #5d5576;
+        --bg-a: #ffd9ef;
+        --bg-b: #f4ddff;
+        --bg-c: #ffe6f2;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      html.lenis,
+      html.lenis body {
+        height: auto;
+      }
+
+      .lenis.lenis-smooth {
+        scroll-behavior: auto !important;
+      }
+
+      .lenis.lenis-smooth [data-lenis-prevent] {
+        overscroll-behavior: contain;
+      }
+
+      body {
+        font-family: "Manrope", system-ui, sans-serif;
+        color: var(--ink);
+        background: linear-gradient(160deg, #fdf8ff 0%, #fef6fb 40%, #fbf5ff 100%);
+        overflow-x: hidden;
+      }
+
+      .container {
+        width: min(1180px, 94vw);
+        margin: 0 auto;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 60;
+        border-bottom: 1px solid #f2e6f8;
+        background: rgba(255, 252, 255, 0.85);
+        backdrop-filter: blur(8px);
+      }
+
+      .topbar-inner {
+        min-height: 82px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+      }
+
+      .logo {
+        font-size: clamp(2rem, 3vw, 2.8rem);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        color: #d6297a;
+        text-decoration: none;
+      }
+
+      .menu {
+        display: none;
+      }
+
+      .cta-row {
+        display: flex;
+        gap: 10px;
+      }
+
+      .btn {
+        border: none;
+        border-radius: 14px;
+        padding: 12px 18px;
+        font-size: 0.95rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .btn:hover {
+        transform: translateY(-1px);
+      }
+
+      .btn-dark {
+        background: #191924;
+        color: #fff;
+      }
+
+      .btn-light {
+        background: #fff;
+        color: #2d2a3d;
+        border: 1px solid #ebe5f4;
+      }
+
+      .btn-grad {
+        background: linear-gradient(135deg, var(--pink), var(--purple));
+        color: #fff;
+        box-shadow: 0 14px 34px rgba(236, 72, 153, 0.26);
+      }
+
+      .hero {
+        min-height: calc(100vh - 82px);
+        display: grid;
+        align-items: center;
+        padding: 52px 0 40px;
+        background:
+          radial-gradient(1000px 500px at 88% -12%, rgba(124, 58, 237, 0.2), transparent 55%),
+          radial-gradient(900px 420px at 3% 15%, rgba(236, 72, 153, 0.2), transparent 56%),
+          linear-gradient(120deg, var(--bg-a) 0%, var(--bg-b) 52%, var(--bg-c) 100%);
+      }
+
+      .hero-grid {
+        display: grid;
+        gap: 28px;
+        align-items: center;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        padding: 8px 13px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.9);
+        font-size: 13px;
+        color: #633f74;
+      }
+
+      h1 {
+        margin: 16px 0 12px;
+        font-size: clamp(2.2rem, 6vw, 4.9rem);
+        line-height: 1.02;
+        letter-spacing: -0.04em;
+      }
+
+      .sub {
+        margin: 0;
+        max-width: 640px;
+        color: var(--muted);
+        font-size: clamp(1rem, 2.2vw, 1.22rem);
+      }
+
+      .hero-actions {
+        margin-top: 28px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .social-proof {
+        margin-top: 18px;
+        display: inline-flex;
+        align-items: center;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.95);
+        background: rgba(255, 255, 255, 0.7);
+        padding: 10px 14px;
+        color: #4a3f66;
+        font-weight: 600;
+        font-size: 0.95rem;
+      }
+
+      .hero-media {
+        position: relative;
+        min-height: 540px;
+      }
+
+      .hero-card {
+        position: absolute;
+        overflow: hidden;
+        border-radius: 28px;
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        box-shadow: 0 18px 38px rgba(36, 13, 48, 0.22);
+      }
+
+      .hero-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .hero-main {
+        inset: 10px 22% 10px 0;
+      }
+
+      .hero-right-a {
+        width: 31%;
+        height: 72%;
+        right: 8%;
+        top: 6%;
+      }
+
+      .hero-right-b {
+        width: 26%;
+        height: 60%;
+        right: -2%;
+        bottom: 2%;
+      }
+
+      section {
+        padding: 92px 0;
+      }
+
+      .section-head {
+        margin-bottom: 26px;
+      }
+
+      .kicker {
+        margin: 0 0 9px;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        font-size: 12px;
+        font-weight: 800;
+        color: #c03180;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: clamp(1.8rem, 4vw, 3.1rem);
+        letter-spacing: -0.03em;
+      }
+
+      .feature-row {
+        display: grid;
+        gap: 16px;
+      }
+
+      .feature-card {
+        border-radius: 26px;
+        background: #fff;
+        border: 1px solid #f0e6f7;
+        overflow: hidden;
+        box-shadow: 0 12px 30px rgba(43, 18, 55, 0.08);
+      }
+
+      .feature-grid {
+        display: grid;
+        gap: 0;
+      }
+
+      .feature-text {
+        padding: 30px 26px;
+      }
+
+      .feature-title {
+        margin: 0;
+        font-size: clamp(1.7rem, 3.4vw, 2.7rem);
+        line-height: 1.08;
+      }
+
+      .feature-copy {
+        margin: 12px 0 0;
+        color: var(--muted);
+        font-size: 1.03rem;
+        line-height: 1.6;
+      }
+
+      .feature-art {
+        min-height: clamp(220px, 30vw, 300px);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .feature-art img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .tag {
+        position: absolute;
+        border-radius: 999px;
+        padding: 9px 14px;
+        background: rgba(255, 255, 255, 0.84);
+        border: 1px solid rgba(255, 255, 255, 0.95);
+        font-size: 0.86rem;
+        font-weight: 700;
+        color: #4f4666;
+      }
+
+      .steps {
+        background: linear-gradient(150deg, #ffe6f3 0%, #f7ebff 100%);
+      }
+
+      .step-grid {
+        display: grid;
+        gap: 14px;
+      }
+
+      .step {
+        border-radius: 20px;
+        border: 1px solid #ebdbf3;
+        background: #fff;
+        padding: 20px;
+      }
+
+      .step-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        background: #fee4f4;
+        margin-bottom: 10px;
+      }
+
+      .testimonials {
+        background: #fff;
+      }
+
+      .quote-grid {
+        display: grid;
+        gap: 14px;
+      }
+
+      .quote {
+        border-radius: 18px;
+        border: 1px solid #f0e8f5;
+        background: #fff8fd;
+        padding: 18px;
+      }
+
+      .stars {
+        color: var(--amber);
+        letter-spacing: 0.06em;
+        margin-bottom: 8px;
+        font-size: 1.05rem;
+      }
+
+      .beta {
+        padding-top: 36px;
+      }
+
+      .beta-box {
+        border-radius: 26px;
+        background: linear-gradient(130deg, #fddfef 0%, #f7e6ff 100%);
+        border: 1px solid #f2ddef;
+        padding: clamp(22px, 4vw, 40px);
+      }
+
+      .beta-form {
+        margin-top: 18px;
+        display: grid;
+        gap: 12px;
+      }
+
+      input[type="email"] {
+        width: 100%;
+        border-radius: 14px;
+        border: 1px solid #e8dcee;
+        background: #fff;
+        padding: 13px 14px;
+        font-size: 0.98rem;
+        outline: none;
+      }
+
+      footer {
+        padding: 42px 0 52px;
+        border-top: 1px solid #f0e7f5;
+        background: #fff;
+      }
+
+      .footer-grid {
+        display: grid;
+        gap: 14px;
+      }
+
+      .footer-brand {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #d6297a;
+      }
+
+      .footer-links {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      .footer-links a {
+        color: #5f5578;
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      .socials {
+        display: flex;
+        gap: 10px;
+      }
+
+      .socials a {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        border: 1px solid #e8dcee;
+        background: #fff;
+        display: grid;
+        place-items: center;
+        text-decoration: none;
+        color: #4b4361;
+        font-size: 0.86rem;
+      }
+
+      .reveal {
+        opacity: 0;
+        transform: translateY(24px);
+        transition: opacity 0.55s ease, transform 0.55s ease;
+      }
+
+      .reveal.in {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      @media (min-width: 900px) {
+        .menu {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          border: 1px solid #eee3f2;
+          background: #fff;
+          border-radius: 18px;
+          padding: 4px;
+        }
+
+        .menu a {
+          text-decoration: none;
+          color: #3d3553;
+          font-size: 0.95rem;
+          font-weight: 700;
+          border-radius: 12px;
+          padding: 11px 14px;
+        }
+
+        .menu a:hover {
+          background: #fdf1f8;
+          color: #b83279;
+        }
+
+        .hero-grid {
+          grid-template-columns: 1fr 1.1fr;
+          gap: 26px;
+        }
+
+        .feature-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .step-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .quote-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .beta-form {
+          grid-template-columns: 1fr auto;
+        }
+
+        .footer-grid {
+          grid-template-columns: 1fr auto auto;
+          align-items: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container topbar-inner">
+        <a class="logo" href="#top">Chill Mate</a>
+        <nav class="menu">
+          <a href="#swipe">Swipe</a>
+          <a href="#plans">Plans</a>
+          <a href="#leaderboard">Leaderboard</a>
+          <a href="#chat">Chat</a>
+          <a href="#how">How It Works</a>
+          <a href="#testimonials">Stories</a>
+        </nav>
+        <div class="cta-row">
+          <a class="btn btn-light" href="/login">Sign in</a>
+          <a class="btn btn-dark" href="/register">Sign up</a>
+        </div>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="container hero-grid">
+          <div class="reveal" data-parallax-speed="0.05">
+            <span class="eyebrow">Campus social connection app</span>
+            <h1>Chill Mate — Connect, Discover, Chill.</h1>
+            <p class="sub">Find friends, join plans, and make memories on campus.</p>
+            <div class="hero-actions">
+              <a class="btn btn-grad" href="/register">Get Early Access</a>
+              <a class="btn btn-light" href="#video">Watch Video</a>
+            </div>
+            <div class="social-proof">Trusted by 1000+ students</div>
+          </div>
+
+          <div class="hero-media reveal">
+            <div class="hero-card hero-main" data-parallax-speed="0.08">
+              <img
+                src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1100&q=80"
+                alt="Students hanging out on campus"
+              />
+            </div>
+            <div class="hero-card hero-right-a" data-parallax-speed="0.12">
+              <img
+                src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=80"
+                alt="Campus social profile"
+              />
+            </div>
+            <div class="hero-card hero-right-b" data-parallax-speed="0.16">
+              <img
+                src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=900&q=80"
+                alt="Student smiling outdoors"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="swipe">
+        <div class="container">
+          <div class="section-head">
+            <p class="kicker">Feature 01</p>
+            <h2>Swipe. Match. Chat.</h2>
+          </div>
+          <article class="feature-card reveal">
+            <div class="feature-grid">
+              <div class="feature-text">
+                <h3 class="feature-title">Fast discovery with a familiar swipe flow</h3>
+                <p class="feature-copy">
+                  Browse profiles, send likes, and open chats in seconds with a mobile-first interface.
+                </p>
+              </div>
+              <div class="feature-art">
+                <img
+                  src="https://images.pexels.com/photos/607812/pexels-photo-607812.jpeg?auto=compress&cs=tinysrgb&w=1200"
+                  alt="Student using phone for swipe matching"
+                />
+                <span class="tag" style="left: 14px; top: 14px;">Swipe cards</span>
+                <span class="tag" style="right: 14px; bottom: 14px;">Instant matches</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="plans">
+        <div class="container">
+          <div class="section-head">
+            <p class="kicker">Feature 02</p>
+            <h2>Create or Join Chill Events.</h2>
+          </div>
+          <article class="feature-card reveal">
+            <div class="feature-grid">
+              <div class="feature-text">
+                <h3 class="feature-title">Campus plans that turn online into offline</h3>
+                <p class="feature-copy">
+                  Host a rooftop jam, game night, study group, or coffee walk. Find your crowd fast.
+                </p>
+              </div>
+              <div class="feature-art">
+                <img
+                  src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80"
+                  alt="Students planning trip"
+                />
+                <span class="tag" style="left: 14px; top: 14px;">Join plan</span>
+                <span class="tag" style="right: 14px; top: 14px;">Spots left: 3</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="leaderboard">
+        <div class="container">
+          <div class="section-head">
+            <p class="kicker">Feature 03</p>
+            <h2>Level Up Your Campus Rank.</h2>
+          </div>
+          <article class="feature-card reveal">
+            <div class="feature-grid">
+              <div class="feature-text">
+                <h3 class="feature-title">Reputation, streaks, badges, and leaderboard growth</h3>
+                <p class="feature-copy">
+                  Earn trust by showing up, hosting quality events, and staying active in your community.
+                </p>
+              </div>
+              <div class="feature-art">
+                <img
+                  src="https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1200&q=80"
+                  alt="Leaderboard and achievement badges"
+                />
+                <span class="tag" style="left: 14px; bottom: 14px;">Campus Icon</span>
+                <span class="tag" style="right: 14px; bottom: 14px;">+120 XP</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="chat">
+        <div class="container">
+          <div class="section-head">
+            <p class="kicker">Feature 04</p>
+            <h2>Conversations made easy.</h2>
+          </div>
+          <article class="feature-card reveal">
+            <div class="feature-grid">
+              <div class="feature-text">
+                <h3 class="feature-title">Real-time chats for both dating and campus groups</h3>
+                <p class="feature-copy">
+                  Stay updated with quick replies, notifications, and clean chat threads.
+                </p>
+              </div>
+              <div class="feature-art">
+                <img
+                  src="https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=1200&q=80"
+                  alt="Messaging bubbles and students chatting"
+                />
+                <span class="tag" style="left: 14px; top: 14px;">typing...</span>
+                <span class="tag" style="right: 14px; bottom: 14px;">seen now</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="how" class="steps">
+        <div class="container">
+          <div class="section-head">
+            <p class="kicker">How It Works</p>
+            <h2>Simple flow. Real outcomes.</h2>
+          </div>
+          <div class="step-grid">
+            <article class="step reveal">
+              <div class="step-icon">👤</div>
+              <h3>Create Your Profile</h3>
+              <p class="feature-copy">Set your vibe, interests, and what you're looking for.</p>
+            </article>
+            <article class="step reveal">
+              <div class="step-icon">💘</div>
+              <h3>Swipe & Match</h3>
+              <p class="feature-copy">Discover people nearby and connect instantly.</p>
+            </article>
+            <article class="step reveal">
+              <div class="step-icon">🎉</div>
+              <h3>Plan Hangouts & Chill</h3>
+              <p class="feature-copy">Create events or join ongoing campus plans.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="testimonials" class="testimonials">
+        <div class="container">
+          <div class="section-head">
+            <p class="kicker">Social Proof</p>
+            <h2>What students say</h2>
+          </div>
+          <div class="quote-grid">
+            <article class="quote reveal">
+              <div class="stars">★★★★★</div>
+              <p>“I made real friends here.”</p>
+              <small>— Aditi, 2nd year</small>
+            </article>
+            <article class="quote reveal">
+              <div class="stars">★★★★★</div>
+              <p>“Campus plans helped me meet people outside my branch.”</p>
+              <small>— Rohan, 3rd year</small>
+            </article>
+            <article class="quote reveal">
+              <div class="stars">★★★★★</div>
+              <p>“Feels premium, clean, and actually useful.”</p>
+              <small>— Nisha, 1st year</small>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="beta" id="video">
+        <div class="container">
+          <div class="beta-box reveal">
+            <p class="kicker">Early Access</p>
+            <h2>Join the next campus beta wave.</h2>
+            <p class="feature-copy">Get product drops, feature previews, and early invites.</p>
+            <form class="beta-form">
+              <input type="email" placeholder="Enter your college email" required />
+              <button class="btn btn-grad" type="submit">Join the Beta</button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="container footer-grid">
+        <div class="footer-brand">Chill Mate</div>
+        <nav class="footer-links">
+          <a href="#">About</a>
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms</a>
+        </nav>
+        <div class="socials">
+          <a href="#" aria-label="Instagram">IG</a>
+          <a href="#" aria-label="Twitter">X</a>
+          <a href="#" aria-label="YouTube">YT</a>
+          <a href="#" aria-label="LinkedIn">in</a>
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js"></script>
+    <script>
+      /*
+       Lenis package install (for React/Next projects):
+       npm i lenis
+       yarn add lenis
+      */
+
+      const lenis = new Lenis({
+        duration: 1.2,
+        smoothWheel: true,
+        smoothTouch: false,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      });
+
+      function raf(time) {
+        lenis.raf(time);
+        requestAnimationFrame(raf);
+      }
+      requestAnimationFrame(raf);
+
+      const revealEls = document.querySelectorAll(".reveal");
+      const revealObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) entry.target.classList.add("in");
+          });
+        },
+        { threshold: 0.16 }
+      );
+      revealEls.forEach((el) => revealObserver.observe(el));
+
+      const parallaxEls = document.querySelectorAll("[data-parallax-speed]");
+      lenis.on("scroll", ({ scroll }) => {
+        parallaxEls.forEach((el) => {
+          const speed = Number(el.dataset.parallaxSpeed || 0.08);
+          const y = (scroll - el.offsetTop) * speed;
+          el.style.transform = `translate3d(0, ${y}px, 0)`;
+        });
+      });
+    </script>
+  </body>
+</html>
