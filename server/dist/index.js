@@ -41,17 +41,6 @@ app.set("trust proxy", 1);
 app.use(helmet({
     crossOriginResourcePolicy: false,
 }));
-if (isProduction) {
-    app.use((req, res, next) => {
-        const forwardedProto = req.headers["x-forwarded-proto"]?.split(",")[0]?.trim();
-        if (req.secure || forwardedProto === "https")
-            return next();
-        const host = req.headers.host;
-        if (!host)
-            return next();
-        return res.redirect(301, `https://${host}${req.originalUrl}`);
-    });
-}
 app.use(cors({
     origin(origin, callback) {
         if (isAllowedOrigin(origin))
@@ -72,6 +61,8 @@ app.use((req, res, next) => {
     const startedAt = Date.now();
     res.on("finish", () => {
         const durationMs = Date.now() - startedAt;
+        if (req.method === "GET" && res.statusCode < 400)
+            return;
         console.log(`${req.method} ${req.originalUrl} ${res.statusCode} ${durationMs}ms`);
     });
     next();

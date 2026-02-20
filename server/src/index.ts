@@ -6,8 +6,6 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import { Server as IOServer } from "socket.io";
-import fs from "fs";
-import db from "./db.js";
 import rateLimit from "express-rate-limit";
 
 import authRouter from "./routes.auth.js";
@@ -48,16 +46,6 @@ app.use(
     crossOriginResourcePolicy: false,
   })
 );
-
-if (isProduction) {
-  app.use((req, res, next) => {
-    const forwardedProto = (req.headers["x-forwarded-proto"] as string | undefined)?.split(",")[0]?.trim();
-    if (req.secure || forwardedProto === "https") return next();
-    const host = req.headers.host;
-    if (!host) return next();
-    return res.redirect(301, `https://${host}${req.originalUrl}`);
-  });
-}
 
 app.use(
   cors({
@@ -110,53 +98,37 @@ app.use(
   })
 );
 
-app.use("/auth", authRouter);
-app.use("/profiles", profilesRouter);
-app.use("/likes", likesRouter);
-app.use("/likes-you", likesRouter);
-app.use("/matches", matchesRouter);
-app.use("/chill", chillRouter);
-app.use("/chat", chatRouter);
-app.use("/notifications", notificationsRouter);
-app.use("/safety", safetyRouter);
-app.use("/premium", premiumRouter);
-app.use("/analytics", analyticsRouter);
-app.use("/admin", adminRouter);
-app.use("/internal/admin", adminRouter);
-app.use("/plans", plansRouter);
-app.use("/leaderboard", leaderboardRouter);
-app.use("/config", configRouter);
-app.use("/feedback", feedbackRouter);
+const mountRoutes = (prefix = "") => {
+  app.use(`${prefix}/auth`, authRouter);
+  app.use(`${prefix}/profiles`, profilesRouter);
+  app.use(`${prefix}/likes`, likesRouter);
+  app.use(`${prefix}/likes-you`, likesRouter);
+  app.use(`${prefix}/matches`, matchesRouter);
+  app.use(`${prefix}/chill`, chillRouter);
+  app.use(`${prefix}/chat`, chatRouter);
+  app.use(`${prefix}/notifications`, notificationsRouter);
+  app.use(`${prefix}/safety`, safetyRouter);
+  app.use(`${prefix}/premium`, premiumRouter);
+  app.use(`${prefix}/analytics`, analyticsRouter);
+  app.use(`${prefix}/admin`, adminRouter);
+  app.use(`${prefix}/leaderboard`, leaderboardRouter);
+  app.use(`${prefix}/plans`, plansRouter);
+  app.use(`${prefix}/config`, configRouter);
+  app.use(`${prefix}/feedback`, feedbackRouter);
+};
 
-app.get("/health", (_req, res) => {
-  let dbOk = false;
-  let uploadsOk = false;
-  let dbError: string | null = null;
+mountRoutes("");
+mountRoutes("/api");
 
-  try {
-    db.prepare("SELECT 1 as ok").get();
-    dbOk = true;
-  } catch (err) {
-    dbError = err instanceof Error ? err.message : "DB check failed";
-  }
+const healthHandler = (_req: express.Request, res: express.Response) => {
+  res.status(200).json({ status: "ok" });
+};
 
-  uploadsOk = fs.existsSync(uploadsDir);
-  const jwtLoaded = Boolean(process.env.JWT_SECRET);
+app.get("/health", healthHandler);
+app.get("/api/health", healthHandler);
 
-  const checks = {
-    db: { ok: dbOk, error: dbError },
-    uploadsDir: { ok: uploadsOk, path: uploadsDir },
-    jwtSecret: { ok: jwtLoaded },
-  };
-
-  const allOk = checks.db.ok && checks.uploadsDir.ok && checks.jwtSecret.ok;
-  res.status(allOk ? 200 : 503).json({
-    ok: allOk,
-    name: "Chill Mate",
-    env: NODE_ENV,
-    timestamp: new Date().toISOString(),
-    checks,
-  });
+app.get("/", (_req, res) => {
+  res.send("ChillMate API is running");
 });
 
 app.use((_req, res) => {

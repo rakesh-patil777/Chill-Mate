@@ -470,10 +470,6 @@ export default function Profile() {
   const boundedPreviewY = clampOffset(cropY, previewH, cropFrame);
   const maxMoveX = Math.max(0, Math.round((previewW - cropFrame) / 2));
   const maxMoveY = Math.max(0, Math.round((previewH - cropFrame) / 2));
-  const isDev =
-    typeof window !== "undefined" &&
-    (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
-  const adminResolved = hasAdminAccess(form.isAdmin);
 
   async function copyInviteLink() {
     if (!inviteLink) return;
@@ -620,11 +616,6 @@ export default function Profile() {
             >
               Admin Dashboard
             </Link>
-          )}
-          {isDev && (
-            <p className="mt-2 text-[11px] text-slate-500">
-              DEV: admin={adminResolved ? "true" : "false"}
-            </p>
           )}
         </aside>
 

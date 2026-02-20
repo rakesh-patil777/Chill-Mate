@@ -1,7 +1,11 @@
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 
-const API_BASE = (import.meta as any).env?.VITE_API_BASE ?? "http://localhost:4000";
+const rawApiBase =
+  (import.meta as any).env?.VITE_API_URL ??
+  (import.meta as any).env?.VITE_API_BASE ??
+  "";
+const API_BASE = String(rawApiBase).replace(/\/$/, "");
 
 type ConfigResponse = {
   launchMode?: "open" | "invite-only" | "closed";
