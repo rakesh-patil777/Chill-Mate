@@ -64,7 +64,7 @@ const globalLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
-app.use(globalLimiter);
+app.use("/auth", globalLimiter);
 
 app.use((req, res, next) => {
   const startedAt = Date.now();
