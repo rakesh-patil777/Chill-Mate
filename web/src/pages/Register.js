@@ -1,7 +1,9 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
-const rawApiBase = import.meta.env?.VITE_API_URL ?? import.meta.env?.VITE_API_BASE ?? "";
+const rawApiBase = import.meta.env?.VITE_API_URL ??
+    import.meta.env?.VITE_API_BASE ??
+    "";
 const API_BASE = String(rawApiBase).replace(/\/$/, "");
 const COLLEGE_EMAIL_REGEX = /^[a-zA-Z]+\.[a-zA-Z0-9]+@presidencyuniversity\.in$/i;
 const STRONG_PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^()_\-+=])[A-Za-z\d@$!%*?&#^()_\-+=]{8,}$/;

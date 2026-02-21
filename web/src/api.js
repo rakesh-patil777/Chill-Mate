@@ -1,4 +1,6 @@
-const rawApiBase = import.meta.env?.VITE_API_URL ?? import.meta.env?.VITE_API_BASE ?? "";
+const rawApiBase = import.meta.env?.VITE_API_URL ??
+    import.meta.env?.VITE_API_BASE ??
+    "";
 const API_BASE = String(rawApiBase).replace(/\/$/, "");
 export function authHeader() {
     const token = localStorage.getItem("token");
