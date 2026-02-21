@@ -14,3 +14,10 @@ build/
 
 # Logs
 npm-debug.log*
+
+# Production artifacts and runtime DB files
+server/chillmate.db
+server/*.db-shm
+server/*.db-wal
+web/dist
+server/dist
