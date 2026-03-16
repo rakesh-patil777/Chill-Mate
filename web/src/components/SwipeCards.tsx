@@ -198,7 +198,7 @@ export default function SwipeCards({ filters }: { filters: DiscoverFilters }) {
   return (
     <>
       <div className="flex items-center justify-center px-0 sm:px-4">
-        <div className="relative w-full max-w-[320px] h-[62vh] sm:h-[500px] select-none">
+        <div className="relative h-[520px] w-[340px] max-w-[92vw] select-none">
           {thirdUser && (
             <div className="absolute inset-0 translate-y-5 scale-[0.9] rounded-3xl overflow-hidden bg-black/35 border border-white/10" />
           )}
@@ -222,7 +222,7 @@ export default function SwipeCards({ filters }: { filters: DiscoverFilters }) {
           )}
 
           <div
-            className={`absolute inset-0 rounded-3xl overflow-hidden shadow-2xl bg-black border border-white/10 cursor-grab active:cursor-grabbing ${
+            className={`absolute inset-0 ${
               isAnimating
                 ? "transition-transform duration-300 ease-out"
                 : "transition-transform duration-200 ease-out"
@@ -233,24 +233,27 @@ export default function SwipeCards({ filters }: { filters: DiscoverFilters }) {
               }px, 0) rotate(${dragRotation}deg)`,
               opacity: 1 - Math.min(Math.abs(dragX) / 520, 0.5),
             }}
-            onPointerDown={(e) => {
-              (e.currentTarget as HTMLDivElement).setPointerCapture(e.pointerId);
-              startDrag(e.clientX, e.clientY);
-            }}
-            onPointerMove={(e) => handleDrag(e.clientX, e.clientY)}
-            onPointerUp={endDrag}
-            onPointerCancel={endDrag}
-            onPointerLeave={() => {
-              if (!startPoint) return;
-              endDrag();
-            }}
-            onClick={(e) => {
-              const target = e.target as HTMLElement | null;
-              if (target?.closest("button")) return;
-              if (hasMovedRef.current || isAnimating) return;
-              navigate(`/discover/user/${user.id}`);
-            }}
           >
+            <div
+              className="h-full w-full rounded-3xl overflow-hidden shadow-2xl bg-black border border-white/10 cursor-grab active:cursor-grabbing"
+              onPointerDown={(e) => {
+                (e.currentTarget as HTMLDivElement).setPointerCapture(e.pointerId);
+                startDrag(e.clientX, e.clientY);
+              }}
+              onPointerMove={(e) => handleDrag(e.clientX, e.clientY)}
+              onPointerUp={endDrag}
+              onPointerCancel={endDrag}
+              onPointerLeave={() => {
+                if (!startPoint) return;
+                endDrag();
+              }}
+              onClick={(e) => {
+                const target = e.target as HTMLElement | null;
+                if (target?.closest("button")) return;
+                if (hasMovedRef.current || isAnimating) return;
+                navigate(`/discover/user/${user.id}`);
+              }}
+            >
             <img
               src={user.avatarUrl || "/default-avatar.png"}
               alt={user.fullName}
@@ -366,6 +369,7 @@ export default function SwipeCards({ filters }: { filters: DiscoverFilters }) {
               >
                 Report
               </button>
+            </div>
             </div>
           </div>
         </div>

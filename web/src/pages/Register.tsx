@@ -62,7 +62,8 @@ export default function Register() {
   async function handleRegister(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
-    if (!COLLEGE_EMAIL_REGEX.test(collegeId.trim())) {
+    const normalizedCollegeId = collegeId.trim().toLowerCase();
+    if (!COLLEGE_EMAIL_REGEX.test(normalizedCollegeId)) {
       setError(INVALID_COLLEGE_EMAIL_MSG);
       return;
     }
@@ -76,7 +77,7 @@ export default function Register() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          collegeId,
+          collegeId: normalizedCollegeId,
           password,
           fullName,
           age: Number(age),
@@ -102,7 +103,7 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-200 via-pink-200 to-purple-200">
+    <div className="min-h-screen w-full bg-gradient-to-br from-rose-200 via-pink-200 to-purple-200">
       <style>{`
         @keyframes fadeInUp {
           from { opacity: 0; transform: translateY(12px); }
@@ -114,9 +115,9 @@ export default function Register() {
         }
       `}</style>
 
-      <div className="grid min-h-screen md:grid-cols-2">
+      <div className="grid min-h-screen w-full xl:grid-cols-2">
         <aside
-          className="relative hidden min-h-screen overflow-hidden md:block"
+          className="relative hidden xl:block"
           style={{
             backgroundImage:
               "linear-gradient(180deg, rgba(23,18,44,0.62), rgba(43,15,45,0.68)), url('https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=1800&q=80')",
@@ -142,139 +143,141 @@ export default function Register() {
           </div>
         </aside>
 
-        <main className="flex items-center justify-center px-4 py-10 sm:px-8">
-          <div className="w-full max-w-[420px] animate-[fadeInUp_0.55s_ease] rounded-3xl border border-white/30 bg-white/70 p-6 shadow-2xl shadow-pink-300/30 backdrop-blur-xl sm:p-8">
-            <h2 className="text-3xl font-black text-slate-900">Create account</h2>
-            <p className="mt-1 text-slate-600">Join Chill Mate with your college identity</p>
+        <main className="flex items-center justify-center px-4 py-8 sm:px-8">
+          <div className="relative w-[420px] max-w-full">
+            <div className="w-full animate-[fadeInUp_0.55s_ease] rounded-3xl border border-white/30 bg-white/70 p-6 shadow-2xl shadow-pink-300/30 backdrop-blur-xl sm:p-8">
+              <h2 className="text-3xl font-black text-slate-900">Create account</h2>
+              <p className="mt-1 text-slate-600">Join Chill Mate with your college identity</p>
 
-            {launchMode === "invite-only" && (
-              <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
-                Campus is in invite-only phase.
-              </div>
-            )}
-
-            {launchMode === "closed" ? (
-              <div className="mt-5 space-y-3">
-                <div className="rounded-xl border border-slate-200 bg-white/80 p-3 text-sm text-slate-700">
-                  Chill Mate is launching soon at your campus.
+              {launchMode === "invite-only" && (
+                <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                  Campus is in invite-only phase.
                 </div>
+              )}
 
-                <input
-                  className="w-full rounded-xl border border-slate-200 bg-white/90 px-3 py-2.5 text-slate-800 placeholder:text-slate-400 outline-none transition focus:border-pink-500 focus:ring-2 focus:ring-pink-200"
-                  placeholder="your@email.com"
-                  value={waitlistEmail}
-                  onChange={(e) => setWaitlistEmail(e.target.value)}
-                  type="email"
-                />
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (!waitlistEmail.trim()) {
-                      setWaitlistMsg("Enter an email first.");
-                      return;
-                    }
-                    setWaitlistMsg("Added to waitlist (placeholder).");
-                  }}
-                  className="w-full rounded-xl bg-gradient-to-r from-pink-600 to-rose-500 px-4 py-2.5 font-semibold text-white shadow-lg shadow-pink-200 transition hover:scale-[1.01]"
-                >
-                  Join waitlist
-                </button>
-
-                {waitlistMsg && <p className="text-xs text-slate-600">{waitlistMsg}</p>}
-
-                <p className="pt-1 text-center text-sm text-slate-700">
-                  Already have an account?{" "}
-                  <Link to="/login" className="font-bold text-pink-700 hover:text-pink-800 hover:underline">
-                    Login
-                  </Link>
-                </p>
-              </div>
-            ) : (
-              <form onSubmit={handleRegister} className="mt-5 space-y-3">
-                {error && (
-                  <div className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
-                    {error}
+              {launchMode === "closed" ? (
+                <div className="mt-5 space-y-3">
+                  <div className="rounded-xl border border-slate-200 bg-white/80 p-3 text-sm text-slate-700">
+                    Chill Mate is launching soon at your campus.
                   </div>
-                )}
 
-                <input
-                  className="w-full rounded-xl border border-slate-200 bg-white/90 px-3 py-2.5 text-slate-800 placeholder:text-slate-400 outline-none transition focus:border-pink-500 focus:ring-2 focus:ring-pink-200"
-                  placeholder="name.collegeid@presidencyuniversity.in"
-                  value={collegeId}
-                  onChange={(e) => setCollegeId(e.target.value)}
-                />
-                <p className="text-xs text-slate-500">
-                  Format: name.collegeid@presidencyuniversity.in
-                </p>
-
-                <input
-                  className="w-full rounded-xl border border-slate-200 bg-white/90 px-3 py-2.5 text-slate-800 placeholder:text-slate-400 outline-none transition focus:border-pink-500 focus:ring-2 focus:ring-pink-200"
-                  placeholder="Full Name"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                />
-
-                <div className="grid grid-cols-2 gap-3">
                   <input
                     className="w-full rounded-xl border border-slate-200 bg-white/90 px-3 py-2.5 text-slate-800 placeholder:text-slate-400 outline-none transition focus:border-pink-500 focus:ring-2 focus:ring-pink-200"
-                    placeholder="Age"
-                    type="number"
-                    value={age}
-                    onChange={(e) => setAge(e.target.value)}
+                    placeholder="your@email.com"
+                    value={waitlistEmail}
+                    onChange={(e) => setWaitlistEmail(e.target.value)}
+                    type="email"
                   />
 
-                  <select
-                    className="w-full rounded-xl border border-slate-200 bg-white/90 px-3 py-2.5 text-slate-800 outline-none transition focus:border-pink-500 focus:ring-2 focus:ring-pink-200"
-                    value={gender}
-                    onChange={(e) => setGender(e.target.value)}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!waitlistEmail.trim()) {
+                        setWaitlistMsg("Enter an email first.");
+                        return;
+                      }
+                      setWaitlistMsg("Added to waitlist (placeholder).");
+                    }}
+                    className="w-full rounded-xl bg-gradient-to-r from-pink-600 to-rose-500 px-4 py-2.5 font-semibold text-white shadow-lg shadow-pink-200 transition hover:scale-[1.01]"
                   >
-                    <option>Male</option>
-                    <option>Female</option>
-                    <option>Other</option>
-                  </select>
+                    Join waitlist
+                  </button>
+
+                  {waitlistMsg && <p className="text-xs text-slate-600">{waitlistMsg}</p>}
+
+                  <p className="pt-1 text-center text-sm text-slate-700">
+                    Already have an account?{" "}
+                    <Link to="/login" className="font-bold text-pink-700 hover:text-pink-800 hover:underline">
+                      Login
+                    </Link>
+                  </p>
                 </div>
+              ) : (
+                <form onSubmit={handleRegister} className="mt-5 space-y-3">
+                  {error && (
+                    <div className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+                      {error}
+                    </div>
+                  )}
 
-                <input
-                  className="w-full rounded-xl border border-slate-200 bg-white/90 px-3 py-2.5 text-slate-800 placeholder:text-slate-400 outline-none transition focus:border-pink-500 focus:ring-2 focus:ring-pink-200"
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-
-                <div className="h-1.5 overflow-hidden rounded-full bg-slate-200">
-                  <div
-                    className={`h-full transition-all duration-300 ${
-                      passwordStrength === "strong"
-                        ? "w-full bg-emerald-500"
-                        : passwordStrength === "medium"
-                        ? "w-2/3 bg-amber-500"
-                        : "w-1/3 bg-rose-500"
-                    }`}
+                  <input
+                    className="w-full rounded-xl border border-slate-200 bg-white/90 px-3 py-2.5 text-slate-800 placeholder:text-slate-400 outline-none transition focus:border-pink-500 focus:ring-2 focus:ring-pink-200"
+                    placeholder="name.collegeid@presidencyuniversity.in"
+                    value={collegeId}
+                    onChange={(e) => setCollegeId(e.target.value)}
                   />
-                </div>
+                  <p className="text-xs text-slate-500">
+                    Format: name.collegeid@presidencyuniversity.in
+                  </p>
 
-                <p className="text-xs text-slate-600">
-                  Use 8+ chars with uppercase, lowercase, number, and special symbol.
-                </p>
+                  <input
+                    className="w-full rounded-xl border border-slate-200 bg-white/90 px-3 py-2.5 text-slate-800 placeholder:text-slate-400 outline-none transition focus:border-pink-500 focus:ring-2 focus:ring-pink-200"
+                    placeholder="Full Name"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                  />
 
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full rounded-xl bg-gradient-to-r from-pink-600 to-rose-500 px-4 py-2.5 font-semibold text-white shadow-lg shadow-pink-200 transition duration-200 hover:scale-[1.01] hover:shadow-pink-300 disabled:opacity-60"
-                >
-                  {loading ? "Creating account..." : "Register"}
-                </button>
+                  <div className="grid grid-cols-2 gap-3">
+                    <input
+                      className="w-full rounded-xl border border-slate-200 bg-white/90 px-3 py-2.5 text-slate-800 placeholder:text-slate-400 outline-none transition focus:border-pink-500 focus:ring-2 focus:ring-pink-200"
+                      placeholder="Age"
+                      type="number"
+                      value={age}
+                      onChange={(e) => setAge(e.target.value)}
+                    />
 
-                <p className="pt-1 text-center text-sm text-slate-700">
-                  Already have an account?{" "}
-                  <Link to="/login" className="font-bold text-pink-700 hover:text-pink-800 hover:underline">
-                    Login
-                  </Link>
-                </p>
-              </form>
-            )}
+                    <select
+                      className="w-full rounded-xl border border-slate-200 bg-white/90 px-3 py-2.5 text-slate-800 outline-none transition focus:border-pink-500 focus:ring-2 focus:ring-pink-200"
+                      value={gender}
+                      onChange={(e) => setGender(e.target.value)}
+                    >
+                      <option>Male</option>
+                      <option>Female</option>
+                      <option>Other</option>
+                    </select>
+                  </div>
+
+                  <input
+                    className="w-full rounded-xl border border-slate-200 bg-white/90 px-3 py-2.5 text-slate-800 placeholder:text-slate-400 outline-none transition focus:border-pink-500 focus:ring-2 focus:ring-pink-200"
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+
+                  <div className="h-1.5 overflow-hidden rounded-full bg-slate-200">
+                    <div
+                      className={`h-full transition-all duration-300 ${
+                        passwordStrength === "strong"
+                          ? "w-full bg-emerald-500"
+                          : passwordStrength === "medium"
+                          ? "w-2/3 bg-amber-500"
+                          : "w-1/3 bg-rose-500"
+                      }`}
+                    />
+                  </div>
+
+                  <p className="text-xs text-slate-600">
+                    Use 8+ chars with uppercase, lowercase, number, and special symbol.
+                  </p>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full rounded-xl bg-gradient-to-r from-pink-600 to-rose-500 px-4 py-2.5 font-semibold text-white shadow-lg shadow-pink-200 transition duration-200 hover:scale-[1.01] hover:shadow-pink-300 disabled:opacity-60"
+                  >
+                    {loading ? "Creating account..." : "Register"}
+                  </button>
+
+                  <p className="pt-1 text-center text-sm text-slate-700">
+                    Already have an account?{" "}
+                    <Link to="/login" className="font-bold text-pink-700 hover:text-pink-800 hover:underline">
+                      Login
+                    </Link>
+                  </p>
+                </form>
+              )}
+              </div>
           </div>
         </main>
       </div>

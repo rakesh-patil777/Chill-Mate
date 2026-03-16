@@ -7,7 +7,10 @@
     "dev:server": "npm run dev --prefix server",
     "dev:web": "npm run dev --prefix web",
     "build": "npm run build --prefix server && npm run build --prefix web",
-    "start": "npm run start --prefix server"
+    "start": "npm run start --prefix server",
+    "security-scan": "vibe-guard scan . --min-severity low",
+    "security-scan:json": "vibe-guard scan . --min-severity low --format json --output reports/vibe-guard-report.json && node scripts/vibe-guard-report.mjs reports/vibe-guard-report.json",
+    "security-scan:ci": "vibe-guard scan . --fail-on medium --format json --output reports/vibe-guard-report.json && node scripts/vibe-guard-report.mjs reports/vibe-guard-report.json"
   },
   "devDependencies": {
     "concurrently": "^9.0.1"

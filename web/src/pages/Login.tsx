@@ -169,9 +169,10 @@ export default function Login() {
 
     setLoading(true);
     try {
+      const normalizedCollegeId = identifier.trim().toLowerCase();
       const data = await api<LoginResponse>("/auth/login", {
         method: "POST",
-        body: JSON.stringify({ collegeId: identifier.trim(), password }),
+        body: JSON.stringify({ collegeId: normalizedCollegeId, password }),
       });
 
       if (!data?.token) {
@@ -190,7 +191,7 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-200 via-pink-200 to-purple-200">
+    <div className="min-h-screen w-full bg-gradient-to-br from-rose-200 via-pink-200 to-purple-200">
       <style>{`
         @keyframes fadeInUp {
           from { opacity: 0; transform: translateY(12px); }
@@ -202,9 +203,9 @@ export default function Login() {
         }
       `}</style>
 
-      <div className="grid min-h-screen md:grid-cols-2">
+      <div className="grid min-h-screen w-full xl:grid-cols-2">
         <aside
-          className="relative hidden min-h-screen overflow-hidden md:block"
+          className="relative hidden xl:block"
           style={{
             backgroundImage:
               "linear-gradient(180deg, rgba(23,18,44,0.62), rgba(43,15,45,0.68)), url('https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=1800&q=80')",
@@ -231,128 +232,130 @@ export default function Login() {
           </div>
         </aside>
 
-        <main className="flex items-center justify-center px-4 py-10 sm:px-8">
-          <div className="w-full max-w-[420px] animate-[fadeInUp_0.55s_ease] rounded-3xl border border-white/30 bg-white/70 p-6 shadow-2xl shadow-pink-300/30 backdrop-blur-xl sm:p-8">
-            <h2 className="text-3xl font-black text-slate-900">Welcome back</h2>
-            <p className="mt-1 text-slate-600">Log in to continue to Chill Mate</p>
+        <main className="flex items-center justify-center px-4 py-8 sm:px-8">
+          <div className="relative w-[420px] max-w-full">
+            <div className="w-full animate-[fadeInUp_0.55s_ease] rounded-3xl border border-white/30 bg-white/70 p-6 shadow-2xl shadow-pink-300/30 backdrop-blur-xl sm:p-8">
+              <h2 className="text-3xl font-black text-slate-900">Welcome back</h2>
+              <p className="mt-1 text-slate-600">Log in to continue to Chill Mate</p>
 
-            {error && (
-              <p className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
-                {error}
-              </p>
-            )}
-
-            <form onSubmit={handleLogin} className="mt-5 space-y-4">
-              <div>
-                <label className="mb-1 block text-sm font-semibold text-slate-700">
-                  College Email ID
-                </label>
-                <input
-                  ref={identifierRef}
-                  value={identifier}
-                  onChange={(e) => {
-                    setIdentifier(e.target.value);
-                    if (formError.identifier) {
-                      setFormError((prev) => ({ ...prev, identifier: undefined }));
-                    }
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      passwordRef.current?.focus();
-                    }
-                  }}
-                  placeholder="you@yourcollege.edu"
-                  className="w-full rounded-xl border border-slate-200 bg-white/90 px-3 py-2.5 text-slate-800 placeholder:text-slate-400 outline-none transition focus:border-pink-500 focus:ring-2 focus:ring-pink-200"
-                  aria-invalid={Boolean(formError.identifier)}
-                  autoComplete="username"
-                />
-                <p className="mt-1 text-xs text-slate-500">
-                  Format: name.collegeid@presidencyuniversity.in
+              {error && (
+                <p className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+                  {error}
                 </p>
-                {formError.identifier && (
-                  <p className="mt-1 text-xs text-rose-600">{formError.identifier}</p>
-                )}
-              </div>
+              )}
 
-              <div>
-                <label className="mb-1 block text-sm font-semibold text-slate-700">
-                  Password
-                </label>
-                <div className="relative">
+              <form onSubmit={handleLogin} className="mt-5 space-y-4">
+                <div>
+                  <label className="mb-1 block text-sm font-semibold text-slate-700">
+                    College Email ID
+                  </label>
                   <input
-                    ref={passwordRef}
-                    type={showPassword ? "text" : "password"}
-                    value={password}
+                    ref={identifierRef}
+                    value={identifier}
                     onChange={(e) => {
-                      setPassword(e.target.value);
-                      if (formError.password) {
-                        setFormError((prev) => ({ ...prev, password: undefined }));
+                      setIdentifier(e.target.value);
+                      if (formError.identifier) {
+                        setFormError((prev) => ({ ...prev, identifier: undefined }));
                       }
                     }}
-                    placeholder="Enter your password"
-                    className="w-full rounded-xl border border-slate-200 bg-white/90 px-3 py-2.5 pr-12 text-slate-800 placeholder:text-slate-400 outline-none transition focus:border-pink-500 focus:ring-2 focus:ring-pink-200"
-                    aria-invalid={Boolean(formError.password)}
-                    autoComplete="current-password"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        passwordRef.current?.focus();
+                      }
+                    }}
+                    placeholder="you@yourcollege.edu"
+                    className="w-full rounded-xl border border-slate-200 bg-white/90 px-3 py-2.5 text-slate-800 placeholder:text-slate-400 outline-none transition focus:border-pink-500 focus:ring-2 focus:ring-pink-200"
+                    aria-invalid={Boolean(formError.identifier)}
+                    autoComplete="username"
                   />
+                  <p className="mt-1 text-xs text-slate-500">
+                    Format: name.collegeid@presidencyuniversity.in
+                  </p>
+                  {formError.identifier && (
+                    <p className="mt-1 text-xs text-rose-600">{formError.identifier}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-sm font-semibold text-slate-700">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      ref={passwordRef}
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        if (formError.password) {
+                          setFormError((prev) => ({ ...prev, password: undefined }));
+                        }
+                      }}
+                      placeholder="Enter your password"
+                      className="w-full rounded-xl border border-slate-200 bg-white/90 px-3 py-2.5 pr-12 text-slate-800 placeholder:text-slate-400 outline-none transition focus:border-pink-500 focus:ring-2 focus:ring-pink-200"
+                      aria-invalid={Boolean(formError.password)}
+                      autoComplete="current-password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((v) => !v)}
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg px-2 py-1 text-sm font-semibold text-slate-500 transition hover:bg-slate-100"
+                    >
+                      {showPassword ? "Hide" : "Show"}
+                    </button>
+                  </div>
+
+                  <p
+                    className={`mt-1 text-xs ${
+                      isPasswordStrong ? "text-slate-500" : "text-amber-700"
+                    }`}
+                  >
+                    Use at least 8 chars with upper, lower, number, and special symbol.
+                  </p>
+
+                  {formError.password && (
+                    <p className="mt-1 text-xs text-rose-600">{formError.password}</p>
+                  )}
+                </div>
+
+                <div className="flex justify-end">
                   <button
                     type="button"
-                    onClick={() => setShowPassword((v) => !v)}
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg px-2 py-1 text-sm font-semibold text-slate-500 transition hover:bg-slate-100"
+                    onClick={() => setForgotOpen(true)}
+                    className="text-sm font-semibold text-pink-700 transition hover:text-pink-800"
                   >
-                    {showPassword ? "Hide" : "Show"}
+                    Forgot password?
                   </button>
                 </div>
 
-                <p
-                  className={`mt-1 text-xs ${
-                    isPasswordStrong ? "text-slate-500" : "text-amber-700"
-                  }`}
-                >
-                  Use at least 8 chars with upper, lower, number, and special symbol.
-                </p>
-
-                {formError.password && (
-                  <p className="mt-1 text-xs text-rose-600">{formError.password}</p>
-                )}
-              </div>
-
-              <div className="flex justify-end">
                 <button
-                  type="button"
-                  onClick={() => setForgotOpen(true)}
-                  className="text-sm font-semibold text-pink-700 transition hover:text-pink-800"
+                  type="submit"
+                  disabled={loading}
+                  className="w-full rounded-xl bg-gradient-to-r from-pink-600 to-rose-500 px-4 py-2.5 font-semibold text-white shadow-lg shadow-pink-200 transition duration-200 hover:scale-[1.01] hover:shadow-pink-300 disabled:opacity-60"
                 >
-                  Forgot password?
+                  {loading ? (
+                    <span className="inline-flex items-center gap-2">
+                      <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                      Logging in...
+                    </span>
+                  ) : (
+                    "Log in"
+                  )}
                 </button>
+              </form>
+
+              <p className="mt-6 text-center text-sm text-slate-700">
+                Don&apos;t have an account?{" "}
+                <Link
+                  to="/register"
+                  className="font-bold text-pink-700 transition hover:underline hover:text-pink-800"
+                >
+                  Register
+                </Link>
+              </p>
               </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full rounded-xl bg-gradient-to-r from-pink-600 to-rose-500 px-4 py-2.5 font-semibold text-white shadow-lg shadow-pink-200 transition duration-200 hover:scale-[1.01] hover:shadow-pink-300 disabled:opacity-60"
-              >
-                {loading ? (
-                  <span className="inline-flex items-center gap-2">
-                    <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                    Logging in...
-                  </span>
-                ) : (
-                  "Log in"
-                )}
-              </button>
-            </form>
-
-            <p className="mt-6 text-center text-sm text-slate-700">
-              Don&apos;t have an account?{" "}
-              <Link
-                to="/register"
-                className="font-bold text-pink-700 transition hover:underline hover:text-pink-800"
-              >
-                Register
-              </Link>
-            </p>
           </div>
         </main>
       </div>

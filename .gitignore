@@ -21,3 +21,4 @@ server/*.db-shm
 server/*.db-wal
 web/dist
 server/dist
+reports/

@@ -23,7 +23,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } }); // 5MB
 
-const API_BASE = process.env.API_BASE_URL || `http://localhost:${process.env.PORT || 4000}`;
+const BASE_URL = process.env.BASE_URL || "http://13.205.125.63:4000";
 
 const router = Router();
 
@@ -262,7 +262,7 @@ router.get("/me", auth, (req: any, res) => {
 router.post("/me/avatar", auth, upload.single("avatar"), (req: any, res) => {
   if (!req.file) return res.status(400).json({ error: "No file uploaded" });
   const userId = req.user.id;
-  const avatarUrl = `${API_BASE}/uploads/${req.file.filename}`;
+  const avatarUrl = `${BASE_URL}/uploads/${req.file.filename}`;
   try {
     const exists = db.prepare("SELECT userId FROM profiles WHERE userId = ?").get(userId);
     if (exists) db.prepare("UPDATE profiles SET avatarUrl = ? WHERE userId = ?").run(avatarUrl, userId);
@@ -277,7 +277,7 @@ router.post("/me/avatar", auth, upload.single("avatar"), (req: any, res) => {
 router.post("/me/photos", auth, upload.single("photo"), (req: any, res) => {
   if (!req.file) return res.status(400).json({ error: "No file uploaded" });
   const userId = req.user.id;
-  const photoUrl = `${API_BASE}/uploads/${req.file.filename}`;
+  const photoUrl = `${BASE_URL}/uploads/${req.file.filename}`;
   try {
     const profile = db
       .prepare("SELECT photos FROM profiles WHERE userId = ?")

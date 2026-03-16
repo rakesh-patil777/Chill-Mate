@@ -11,7 +11,7 @@ const router = Router();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const uploadsDir = path.join(__dirname, "..", "public", "uploads");
 fs.mkdirSync(uploadsDir, { recursive: true });
-const API_BASE = process.env.API_BASE_URL || `http://localhost:${process.env.PORT || 4000}`;
+const BASE_URL = process.env.BASE_URL || "http://13.205.125.63:4000";
 
 const chatUploadStorage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, uploadsDir),
@@ -184,7 +184,7 @@ router.post("/:otherUserId/messages", auth, (req: any, res) => {
 
 router.post("/upload", auth, chatUpload.single("image"), (req: any, res) => {
   if (!req.file) return res.status(400).json({ error: "No image uploaded" });
-  const imageUrl = `${API_BASE}/uploads/${req.file.filename}`;
+  const imageUrl = `${BASE_URL}/uploads/${req.file.filename}`;
   return res.status(201).json({ imageUrl });
 });
 

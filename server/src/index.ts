@@ -56,15 +56,16 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.json());
+app.use(express.json({ limit: "100kb" }));
+app.use(express.urlencoded({ extended: false, limit: "100kb" }));
 
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 200,
+  max: 100,
   standardHeaders: true,
   legacyHeaders: false,
 });
-app.use("/auth", globalLimiter);
+app.use(globalLimiter);
 
 app.use((req, res, next) => {
   const startedAt = Date.now();
