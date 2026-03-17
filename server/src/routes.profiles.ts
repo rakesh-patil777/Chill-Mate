@@ -23,7 +23,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } }); // 5MB
 
-const BASE_URL = process.env.BASE_URL || "http://13.205.125.63:4000";
+const BASE_URL = process.env.NODE_ENV === "production" ? (process.env.BASE_URL || "https://chillmate.in") : "http://localhost:4000";
 
 const router = Router();
 
@@ -186,34 +186,34 @@ router.get("/me", auth, (req: any, res) => {
       )
       .get(userId) as
       | {
-          id: number;
-          collegeId: string;
-          fullName: string;
-          age: number;
-          gender?: string | null;
-          isAdmin?: number;
-          premiumUntil?: string | null;
-          profileBoostUntil?: string | null;
-          inviteCount?: number;
-          plansHosted?: number;
-          reputationBoost?: number;
-          swipeStreak?: number;
-          campusStreak?: number;
-        }
+        id: number;
+        collegeId: string;
+        fullName: string;
+        age: number;
+        gender?: string | null;
+        isAdmin?: number;
+        premiumUntil?: string | null;
+        profileBoostUntil?: string | null;
+        inviteCount?: number;
+        plansHosted?: number;
+        reputationBoost?: number;
+        swipeStreak?: number;
+        campusStreak?: number;
+      }
       | undefined;
     if (!user) return res.status(404).json({ error: "User not found" });
     const profile = db
       .prepare("SELECT bio, hobbies, interests, branch, year, avatarUrl, photos FROM profiles WHERE userId = ?")
       .get(userId) as
       | {
-          bio?: string | null;
-          hobbies?: string | null;
-          interests?: string | null;
-          branch?: string | null;
-          year?: number | null;
-          avatarUrl?: string | null;
-          photos?: string | null;
-        }
+        bio?: string | null;
+        hobbies?: string | null;
+        interests?: string | null;
+        branch?: string | null;
+        year?: number | null;
+        avatarUrl?: string | null;
+        photos?: string | null;
+      }
       | undefined;
 
     const completionParts = [
@@ -380,20 +380,20 @@ router.get("/:id", auth, (req: any, res) => {
       )
       .get(targetUserId) as
       | {
-          id: number;
-          collegeId: string;
-          fullName: string;
-          age: number;
-          gender?: string | null;
-          isAdmin?: number;
-          premiumUntil?: string | null;
-          profileBoostUntil?: string | null;
-          inviteCount?: number;
-          plansHosted?: number;
-          reputationBoost?: number;
-          swipeStreak?: number;
-          campusStreak?: number;
-        }
+        id: number;
+        collegeId: string;
+        fullName: string;
+        age: number;
+        gender?: string | null;
+        isAdmin?: number;
+        premiumUntil?: string | null;
+        profileBoostUntil?: string | null;
+        inviteCount?: number;
+        plansHosted?: number;
+        reputationBoost?: number;
+        swipeStreak?: number;
+        campusStreak?: number;
+      }
       | undefined;
     if (!user) return res.status(404).json({ error: "User not found" });
 
@@ -401,14 +401,14 @@ router.get("/:id", auth, (req: any, res) => {
       .prepare("SELECT bio, hobbies, interests, branch, year, avatarUrl, photos FROM profiles WHERE userId = ?")
       .get(targetUserId) as
       | {
-          bio?: string | null;
-          hobbies?: string | null;
-          interests?: string | null;
-          branch?: string | null;
-          year?: number | null;
-          avatarUrl?: string | null;
-          photos?: string | null;
-        }
+        bio?: string | null;
+        hobbies?: string | null;
+        interests?: string | null;
+        branch?: string | null;
+        year?: number | null;
+        avatarUrl?: string | null;
+        photos?: string | null;
+      }
       | undefined;
 
     const completionParts = [

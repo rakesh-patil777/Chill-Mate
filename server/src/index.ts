@@ -30,15 +30,6 @@ const app = express();
 const NODE_ENV = process.env.NODE_ENV || "development";
 const isProduction = NODE_ENV === "production";
 
-const PROD_ORIGINS = ["https://chillmate.in", "https://www.chillmate.in"];
-const DEV_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"];
-const allowedOrigins = isProduction ? PROD_ORIGINS : [...PROD_ORIGINS, ...DEV_ORIGINS];
-
-function isAllowedOrigin(origin?: string) {
-  if (!origin) return true;
-  return allowedOrigins.includes(origin);
-}
-
 app.set("trust proxy", 1);
 
 app.use(
@@ -49,10 +40,7 @@ app.use(
 
 app.use(
   cors({
-    origin(origin, callback) {
-      if (isAllowedOrigin(origin)) return callback(null, true);
-      return callback(new Error("CORS blocked for this origin"));
-    },
+    origin: ["http://localhost:5173", "https://chillmate.in"],
     credentials: true,
   })
 );
@@ -100,7 +88,7 @@ app.use(
 );
 
 const mountRoutes = (prefix = "") => {
-  app.use(`${prefix}/auth`, authRouter);
+  app.use(`${prefix}`, authRouter);
   app.use(`${prefix}/profiles`, profilesRouter);
   app.use(`${prefix}/likes`, likesRouter);
   app.use(`${prefix}/likes-you`, likesRouter);
@@ -144,10 +132,7 @@ app.use((err: unknown, _req: express.Request, res: express.Response, _next: expr
 const server = http.createServer(app);
 const io = new IOServer(server, {
   cors: {
-    origin: (origin, callback) => {
-      if (isAllowedOrigin(origin || undefined)) return callback(null, true);
-      return callback(new Error("CORS blocked for this origin"));
-    },
+    origin: ["http://localhost:5173", "https://chillmate.in"],
     credentials: true,
   },
 });

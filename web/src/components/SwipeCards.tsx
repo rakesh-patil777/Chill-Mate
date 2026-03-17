@@ -43,7 +43,7 @@ export default function SwipeCards({ filters }: { filters: DiscoverFilters }) {
     premium?: boolean;
   }>({});
   const [startPoint, setStartPoint] = useState<{ x: number; y: number } | null>(
-    null
+    null,
   );
   const fetchCancelledRef = useRef(false);
   const hasMovedRef = useRef(false);
@@ -62,11 +62,14 @@ export default function SwipeCards({ filters }: { filters: DiscoverFilters }) {
       const query = new URLSearchParams();
       if (filters.minAge) query.set("minAge", String(filters.minAge));
       if (filters.maxAge) query.set("maxAge", String(filters.maxAge));
-      if (filters.interests?.trim()) query.set("interests", filters.interests.trim());
+      if (filters.interests?.trim())
+        query.set("interests", filters.interests.trim());
       if (filters.gender?.trim()) query.set("gender", filters.gender.trim());
       if (filters.branch?.trim()) query.set("branch", filters.branch.trim());
       if (filters.year) query.set("year", String(filters.year));
-      const data = await api<User[]>(`/profiles/discover${query.toString() ? `?${query.toString()}` : ""}`);
+      const data = await api<User[]>(
+        `/profiles/discover${query.toString() ? `?${query.toString()}` : ""}`,
+      );
       const list = Array.isArray(data) ? data : [];
       if (!fetchCancelledRef.current) {
         setUsers(list);
@@ -102,9 +105,11 @@ export default function SwipeCards({ filters }: { filters: DiscoverFilters }) {
     } catch (err) {
       console.warn("Swipe request failed", err);
       const raw = err instanceof Error ? err.message : "Swipe failed";
-      setError(raw.includes("SWIPE_LIMIT") || raw.includes("Daily swipe limit reached")
-        ? "Daily swipe limit reached for free plan."
-        : "Swipe failed. Try again.");
+      setError(
+        raw.includes("SWIPE_LIMIT") || raw.includes("Daily swipe limit reached")
+          ? "Daily swipe limit reached for free plan."
+          : "Swipe failed. Try again.",
+      );
     } finally {
       setCurrentIndex((prev) => prev + 1);
       setDragX(0);
@@ -171,7 +176,7 @@ export default function SwipeCards({ filters }: { filters: DiscoverFilters }) {
     setStartPoint(null);
   }
 
-    if (loading) {
+  if (loading) {
     return (
       <div className="text-white text-xl font-semibold animate-pulse">
         Loading profiles...
@@ -197,8 +202,8 @@ export default function SwipeCards({ filters }: { filters: DiscoverFilters }) {
 
   return (
     <>
-      <div className="flex items-center justify-center px-0 sm:px-4">
-        <div className="relative h-[520px] w-[340px] max-w-[92vw] select-none">
+      <div className="flex items-center justify-center px-0 sm:px-4 w-full h-full pb-2 sm:pb-4">
+        <div className="relative w-full max-w-[340px] h-[65vh] max-h-[520px] min-h-[400px] sm:h-[520px] select-none">
           {thirdUser && (
             <div className="absolute inset-0 translate-y-5 scale-[0.9] rounded-3xl overflow-hidden bg-black/35 border border-white/10" />
           )}
@@ -235,9 +240,11 @@ export default function SwipeCards({ filters }: { filters: DiscoverFilters }) {
             }}
           >
             <div
-              className="h-full w-full rounded-3xl overflow-hidden shadow-2xl bg-black border border-white/10 cursor-grab active:cursor-grabbing"
+              className="relative h-full w-full rounded-3xl overflow-hidden shadow-2xl bg-black border border-white/10 ring-1 ring-white/10 cursor-grab active:cursor-grabbing"
               onPointerDown={(e) => {
-                (e.currentTarget as HTMLDivElement).setPointerCapture(e.pointerId);
+                (e.currentTarget as HTMLDivElement).setPointerCapture(
+                  e.pointerId,
+                );
                 startDrag(e.clientX, e.clientY);
               }}
               onPointerMove={(e) => handleDrag(e.clientX, e.clientY)}
@@ -254,142 +261,148 @@ export default function SwipeCards({ filters }: { filters: DiscoverFilters }) {
                 navigate(`/discover/user/${user.id}`);
               }}
             >
-            <img
-              src={user.avatarUrl || "/default-avatar.png"}
-              alt={user.fullName}
-              className="w-full h-full object-cover"
-              draggable={false}
-            />
+              <img
+                src={user.avatarUrl || "/default-avatar.png"}
+                alt={user.fullName}
+                className="w-full h-full object-cover object-center"
+                draggable={false}
+              />
 
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent border-b border-l border-r border-transparent rounded-3xl pointer-events-none" />
 
-            {dragX > 35 && (
-              <div className="absolute top-9 left-5 text-emerald-300 text-3xl font-extrabold -rotate-[14deg] border-4 border-emerald-300 px-3 py-1 rounded-lg tracking-wider">
-                LIKE
-              </div>
-            )}
-
-            {dragX < -35 && (
-              <div className="absolute top-9 right-5 text-rose-300 text-3xl font-extrabold rotate-[14deg] border-4 border-rose-300 px-3 py-1 rounded-lg tracking-wider">
-                NOPE
-              </div>
-            )}
-
-            {dragY < -45 && Math.abs(dragX) < 140 && (
-              <div className="absolute top-9 left-1/2 -translate-x-1/2 text-sky-300 text-2xl font-extrabold border-4 border-sky-300 px-3 py-1 rounded-lg tracking-wide">
-                SUPER LIKE
-              </div>
-            )}
-
-            <div className="absolute bottom-24 left-6 right-6 text-white z-10">
-              <h2 className="text-3xl font-extrabold drop-shadow-xl">
-                {user.fullName}, {user.age}
-              </h2>
-              {(user.swipeStreak ?? 0) > 0 && (
-                <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-black/35 border border-white/20 px-2.5 py-1 text-[11px] text-amber-100 font-semibold">
-                  <span>🔥</span>
-                  <span>{user.swipeStreak}-day streak</span>
-                </p>
+              {dragX > 35 && (
+                <div className="absolute top-9 left-5 text-emerald-300 text-3xl font-extrabold -rotate-[14deg] border-4 border-emerald-300 px-3 py-1 rounded-lg tracking-wider pointer-events-none shadow-sm">
+                  LIKE
+                </div>
               )}
-              <p className="mt-2 text-base opacity-90 leading-relaxed">
-                {user.bio || "Hi there! I am using Chill Mate."}
-              </p>
-              <p className="mt-1 text-xs opacity-80">
-                {[user.gender, user.branch, user.year].filter(Boolean).join(" | ")}
-              </p>
-            </div>
 
-            <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-3 sm:gap-5 z-10 px-2">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  animateSwipe("dislike");
-                }}
-                onPointerDown={(e) => e.stopPropagation()}
-                className="w-14 h-14 bg-white/95 rounded-full flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition"
-                aria-label="Dislike"
-              >
-                <span className="text-sm text-rose-500 font-black">NOPE</span>
-              </button>
+              {dragX < -35 && (
+                <div className="absolute top-9 right-5 text-rose-300 text-3xl font-extrabold rotate-[14deg] border-4 border-rose-300 px-3 py-1 rounded-lg tracking-wider pointer-events-none shadow-sm">
+                  NOPE
+                </div>
+              )}
 
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  animateSwipe("superlike");
-                }}
-                onPointerDown={(e) => e.stopPropagation()}
-                className="w-14 h-14 bg-sky-500 rounded-full flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition"
-                aria-label="Super like"
-              >
-                <span className="text-lg text-white font-black">SL</span>
-              </button>
+              {dragY < -45 && Math.abs(dragX) < 140 && (
+                <div className="absolute top-9 left-1/2 -translate-x-1/2 text-sky-300 text-2xl font-extrabold border-4 border-sky-300 px-3 py-1 rounded-lg tracking-wide pointer-events-none shadow-sm">
+                  SUPER LIKE
+                </div>
+              )}
 
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  animateSwipe("like");
-                }}
-                onPointerDown={(e) => e.stopPropagation()}
-                className="w-14 h-14 bg-white/95 rounded-full flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition"
-                aria-label="Like"
-              >
-                <span className="text-sm text-pink-600 font-black">LIKE</span>
-              </button>
-            </div>
-            <div className="absolute top-3 left-3 right-3 flex justify-between gap-2 z-10">
-              <button
-                type="button"
-                onClick={async () => {
-                  await api("/safety/block", {
-                    method: "POST",
-                    body: JSON.stringify({ blockedUserId: user.id }),
-                  });
-                  setCurrentIndex((prev) => prev + 1);
-                }}
-                onPointerDown={(e) => e.stopPropagation()}
-                className="text-[11px] bg-black/45 text-white px-2 py-1 rounded-lg"
-              >
-                Block
-              </button>
-              <button
-                type="button"
-                onClick={async () => {
-                  const reason = window.prompt("Report reason");
-                  if (!reason) return;
-                  await api("/safety/report", {
-                    method: "POST",
-                    body: JSON.stringify({ reportedUserId: user.id, reason }),
-                  });
-                }}
-                onPointerDown={(e) => e.stopPropagation()}
-                className="text-[11px] bg-black/45 text-white px-2 py-1 rounded-lg"
-              >
-                Report
-              </button>
-            </div>
+              <div className="absolute bottom-24 left-6 right-6 text-white z-10 pointer-events-none">
+                <h2 className="text-3xl font-extrabold drop-shadow-xl flex items-center gap-2">
+                  {user.fullName}, {user.age}
+                </h2>
+                {user.gender && (
+                  <p className="mt-1 text-sm font-medium text-white/90 drop-shadow-md capitalize">
+                    {user.gender}
+                  </p>
+                )}
+                {(user.swipeStreak ?? 0) > 0 && (
+                  <p className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-black/40 backdrop-blur-md border border-white/20 px-2.5 py-1 text-[11px] text-amber-100 font-semibold shadow-sm">
+                    <span>🔥</span>
+                    <span>{user.swipeStreak}-day streak</span>
+                  </p>
+                )}
+              </div>
+
+              <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-3 sm:gap-5 z-20 px-2 pb-2">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    animateSwipe("dislike");
+                  }}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  className="w-14 h-14 bg-white/95 rounded-full flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition"
+                  aria-label="Dislike"
+                >
+                  <span className="text-sm text-rose-500 font-black">NOPE</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    animateSwipe("superlike");
+                  }}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  className="w-14 h-14 bg-sky-500 rounded-full flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition"
+                  aria-label="Super like"
+                >
+                  <span className="text-lg text-white font-black">SL</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    animateSwipe("like");
+                  }}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  className="w-14 h-14 bg-white/95 rounded-full flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition"
+                  aria-label="Like"
+                >
+                  <span className="text-sm text-pink-600 font-black">LIKE</span>
+                </button>
+              </div>
+              <div className="absolute top-3 left-3 right-3 flex justify-between gap-2 z-10">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await api("/safety/block", {
+                      method: "POST",
+                      body: JSON.stringify({ blockedUserId: user.id }),
+                    });
+                    setCurrentIndex((prev) => prev + 1);
+                  }}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  className="text-[11px] bg-black/45 text-white px-2 py-1 rounded-lg"
+                >
+                  Block
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const reason = window.prompt("Report reason");
+                    if (!reason) return;
+                    await api("/safety/report", {
+                      method: "POST",
+                      body: JSON.stringify({ reportedUserId: user.id, reason }),
+                    });
+                  }}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  className="text-[11px] bg-black/45 text-white px-2 py-1 rounded-lg"
+                >
+                  Report
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
-      {(error || (!swipeMeta.premium && swipeMeta.remainingSwipes !== undefined && swipeMeta.remainingSwipes !== null)) && (
-        <div className="mt-3 text-center">
-          {error && <p className="text-sm text-rose-700">{error}</p>}
+      {(error ||
+        (!swipeMeta.premium &&
+          swipeMeta.remainingSwipes !== undefined &&
+          swipeMeta.remainingSwipes !== null)) && (
+        <div className="mt-2 shrink-0 text-center w-full py-1 focus:outline-none pointer-events-none z-10">
+          {error && (
+            <p className="text-sm text-rose-700 pointer-events-auto">{error}</p>
+          )}
           {!swipeMeta.premium &&
             swipeMeta.remainingSwipes !== undefined &&
             swipeMeta.remainingSwipes !== null && (
-              <p className="text-xs text-slate-600">
+              <p className="text-xs text-slate-800 font-medium tracking-wide">
                 Swipes left today: {swipeMeta.remainingSwipes}
-                {swipeMeta.freeDailyLimit ? ` / ${swipeMeta.freeDailyLimit}` : ""}
+                {swipeMeta.freeDailyLimit
+                  ? ` / ${swipeMeta.freeDailyLimit}`
+                  : ""}
               </p>
             )}
         </div>
       )}
 
       {matchUser && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="w-full max-w-sm rounded-3xl bg-gradient-to-b from-rose-200 to-pink-100 p-6 text-center shadow-2xl border border-white/60 animate-[fadeIn_220ms_ease-out]">
             <p className="text-sm uppercase tracking-[0.35em] text-pink-700 font-semibold">
               It's a match

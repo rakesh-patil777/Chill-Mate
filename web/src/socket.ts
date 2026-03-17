@@ -1,11 +1,7 @@
 import { io, Socket } from "socket.io-client";
 
-const rawApiBase =
-  (import.meta as any).env?.VITE_API_URL ??
-  (import.meta as any).env?.VITE_API_BASE ??
-  "";
-const API_BASE = String(rawApiBase).replace(/\/$/, "");
-const SOCKET_BASE = API_BASE.replace(/\/api$/, "");
+const API_URL = String((import.meta as any).env?.VITE_API_URL ?? "").replace(/\/$/, "");
+const SOCKET_BASE = API_URL.replace(/\/api$/, "");
 
 let socketRef: Socket | null = null;
 

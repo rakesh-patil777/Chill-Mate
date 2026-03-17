@@ -1,11 +1,7 @@
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 
-const rawApiBase =
-  (import.meta as any).env?.VITE_API_URL ??
-  (import.meta as any).env?.VITE_API_BASE ??
-  "";
-const API_BASE = String(rawApiBase).replace(/\/$/, "");
+const API_URL = "http://localhost:4000/api";
 
 type ConfigResponse = {
   launchMode?: "open" | "invite-only" | "closed";
@@ -13,7 +9,8 @@ type ConfigResponse = {
 
 type PasswordStrength = "weak" | "medium" | "strong";
 
-const COLLEGE_EMAIL_REGEX = /^[a-zA-Z]+\.[a-zA-Z0-9]+@presidencyuniversity\.in$/i;
+const COLLEGE_EMAIL_REGEX =
+  /^[a-zA-Z]+\.[a-zA-Z0-9]+@presidencyuniversity\.in$/i;
 
 const STRONG_PASSWORD_REGEX =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^()_\-+=])[A-Za-z\d@$!%*?&#^()_\-+=]{8,}$/;
@@ -36,17 +33,22 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [waitlistEmail, setWaitlistEmail] = useState("");
   const [waitlistMsg, setWaitlistMsg] = useState("");
-  const [launchMode, setLaunchMode] = useState<"open" | "invite-only" | "closed">("open");
+  const [launchMode, setLaunchMode] = useState<
+    "open" | "invite-only" | "closed"
+  >("open");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const passwordStrength = useMemo(() => getPasswordStrength(password), [password]);
+  const passwordStrength = useMemo(
+    () => getPasswordStrength(password),
+    [password],
+  );
 
   useEffect(() => {
-    fetch(`${API_BASE}/config`)
+    fetch(`${API_URL}/config`)
       .then((res) => res.json())
       .then((data: ConfigResponse) => {
         const mode = data.launchMode;
@@ -71,7 +73,7 @@ export default function Register() {
 
     try {
       const referrerId = Number(searchParams.get("referrerId"));
-      const res = await fetch(`${API_BASE}/auth/register`, {
+      const res = await fetch(`${API_URL}/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -82,7 +84,10 @@ export default function Register() {
           fullName,
           age: Number(age),
           gender,
-          referrerId: Number.isInteger(referrerId) && referrerId > 0 ? referrerId : undefined,
+          referrerId:
+            Number.isInteger(referrerId) && referrerId > 0
+              ? referrerId
+              : undefined,
         }),
       });
 
@@ -103,7 +108,7 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-rose-200 via-pink-200 to-purple-200">
+    <div className="flex flex-col flex-1 h-full min-h-full w-full bg-gradient-to-br from-rose-200 via-pink-200 to-purple-200 overflow-hidden">
       <style>{`
         @keyframes fadeInUp {
           from { opacity: 0; transform: translateY(12px); }
@@ -115,9 +120,9 @@ export default function Register() {
         }
       `}</style>
 
-      <div className="grid min-h-screen w-full xl:grid-cols-2">
+      <div className="grid flex-1 w-full lg:grid-cols-2 h-full">
         <aside
-          className="relative hidden xl:block"
+          className="relative hidden lg:block h-full"
           style={{
             backgroundImage:
               "linear-gradient(180deg, rgba(23,18,44,0.62), rgba(43,15,45,0.68)), url('https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=1800&q=80')",
@@ -133,21 +138,26 @@ export default function Register() {
               <p className="inline-block rounded-full border border-white/30 bg-white/10 px-4 py-1 text-sm font-medium backdrop-blur">
                 Chill Mate
               </p>
-              <h1 className="mt-6 text-5xl font-black leading-tight drop-shadow-lg xl:text-6xl">
+              <h1 className="mt-6 text-5xl font-black leading-tight drop-shadow-lg lg:text-6xl">
                 Start Your Campus Story
               </h1>
               <p className="mt-4 max-w-lg text-lg text-white/90">
-                Join verified college students, build authentic connections, and find your chill circle.
+                Join verified college students, build authentic connections, and
+                find your chill circle.
               </p>
             </div>
           </div>
         </aside>
 
-        <main className="flex items-center justify-center px-4 py-8 sm:px-8">
+        <main className="flex items-center justify-center px-4 py-8 sm:px-8 h-full overflow-y-auto">
           <div className="relative w-[420px] max-w-full">
             <div className="w-full animate-[fadeInUp_0.55s_ease] rounded-3xl border border-white/30 bg-white/70 p-6 shadow-2xl shadow-pink-300/30 backdrop-blur-xl sm:p-8">
-              <h2 className="text-3xl font-black text-slate-900">Create account</h2>
-              <p className="mt-1 text-slate-600">Join Chill Mate with your college identity</p>
+              <h2 className="text-3xl font-black text-slate-900">
+                Create account
+              </h2>
+              <p className="mt-1 text-slate-600">
+                Join Chill Mate with your college identity
+              </p>
 
               {launchMode === "invite-only" && (
                 <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
@@ -183,11 +193,16 @@ export default function Register() {
                     Join waitlist
                   </button>
 
-                  {waitlistMsg && <p className="text-xs text-slate-600">{waitlistMsg}</p>}
+                  {waitlistMsg && (
+                    <p className="text-xs text-slate-600">{waitlistMsg}</p>
+                  )}
 
                   <p className="pt-1 text-center text-sm text-slate-700">
                     Already have an account?{" "}
-                    <Link to="/login" className="font-bold text-pink-700 hover:text-pink-800 hover:underline">
+                    <Link
+                      to="/login"
+                      className="font-bold text-pink-700 hover:text-pink-800 hover:underline"
+                    >
                       Login
                     </Link>
                   </p>
@@ -251,14 +266,15 @@ export default function Register() {
                         passwordStrength === "strong"
                           ? "w-full bg-emerald-500"
                           : passwordStrength === "medium"
-                          ? "w-2/3 bg-amber-500"
-                          : "w-1/3 bg-rose-500"
+                            ? "w-2/3 bg-amber-500"
+                            : "w-1/3 bg-rose-500"
                       }`}
                     />
                   </div>
 
                   <p className="text-xs text-slate-600">
-                    Use 8+ chars with uppercase, lowercase, number, and special symbol.
+                    Use 8+ chars with uppercase, lowercase, number, and special
+                    symbol.
                   </p>
 
                   <button
@@ -271,13 +287,16 @@ export default function Register() {
 
                   <p className="pt-1 text-center text-sm text-slate-700">
                     Already have an account?{" "}
-                    <Link to="/login" className="font-bold text-pink-700 hover:text-pink-800 hover:underline">
+                    <Link
+                      to="/login"
+                      className="font-bold text-pink-700 hover:text-pink-800 hover:underline"
+                    >
                       Login
                     </Link>
                   </p>
                 </form>
               )}
-              </div>
+            </div>
           </div>
         </main>
       </div>

@@ -1,4 +1,10 @@
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+} from "react-router-dom";
 import { AuthProvider } from "./auth";
 import Navbar from "./components/Navbar";
 import AdminPanel from "./pages/AdminPanel";
@@ -31,139 +37,138 @@ function AppRoutes() {
   const hideNavbar = pathname === "/landing";
 
   return (
-    <>
+    <div className="flex flex-col h-full min-h-full w-full">
       {!hideNavbar && <Navbar />}
-      <Routes>
-        <Route
-          path="/"
-          element={<Navigate to="/landing" replace />}
-        />
-        <Route path="/landing" element={<Landing />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+      <div className="flex-1 flex flex-col items-stretch w-full">
+        <Routes>
+          <Route path="/" element={<Navigate to="/landing" replace />} />
+          <Route path="/landing" element={<Landing />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
-        <Route
-          path="/discover"
-          element={
-            <ProtectedRoute>
-              <Discover />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/discover/user/:id"
-          element={
-            <ProtectedRoute>
-              <DiscoverUserDetail />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/matches"
-          element={
-            <ProtectedRoute>
-              <Matches />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/likes-you"
-          element={
-            <ProtectedRoute>
-              <LikesYou />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/chat"
-          element={
-            <ProtectedRoute>
-              <Chat />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/alerts"
-          element={
-            <ProtectedRoute>
-              <Alerts />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/plans"
-          element={
-            <ProtectedRoute>
-              <Plans />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/leaderboard"
-          element={
-            <ProtectedRoute>
-              <Leaderboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/plans/create"
-          element={
-            <ProtectedRoute>
-              <CreatePlan />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/plans/:id/chat"
-          element={
-            <ProtectedRoute>
-              <PlanChat />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/plans/:id"
-          element={
-            <ProtectedRoute>
-              <PlanDetail />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/premium"
-          element={
-            <ProtectedRoute>
-              <Premium />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/feedback"
-          element={
-            <ProtectedRoute>
-              <Feedback />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/internal/admin"
-          element={
-            <ProtectedRoute>
-              <AdminPanel />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </>
+          <Route
+            path="/discover"
+            element={
+              <ProtectedRoute>
+                <Discover />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/discover/user/:id"
+            element={
+              <ProtectedRoute>
+                <DiscoverUserDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/matches"
+            element={
+              <ProtectedRoute>
+                <Matches />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/likes-you"
+            element={
+              <ProtectedRoute>
+                <LikesYou />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/chat"
+            element={
+              <ProtectedRoute>
+                <Chat />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/alerts"
+            element={
+              <ProtectedRoute>
+                <Alerts />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/plans"
+            element={
+              <ProtectedRoute>
+                <Plans />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/leaderboard"
+            element={
+              <ProtectedRoute>
+                <Leaderboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/plans/create"
+            element={
+              <ProtectedRoute>
+                <CreatePlan />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/plans/:id/chat"
+            element={
+              <ProtectedRoute>
+                <PlanChat />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/plans/:id"
+            element={
+              <ProtectedRoute>
+                <PlanDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/premium"
+            element={
+              <ProtectedRoute>
+                <Premium />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/feedback"
+            element={
+              <ProtectedRoute>
+                <Feedback />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/internal/admin"
+            element={
+              <ProtectedRoute>
+                <AdminPanel />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </div>
+    </div>
   );
 }
 

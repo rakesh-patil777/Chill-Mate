@@ -76,7 +76,9 @@ export default function Chat() {
     api<CampusChatPlan[]>("/plans")
       .then((rows) => {
         if (cancelled) return;
-        const list = (Array.isArray(rows) ? rows : []).filter((p) => Boolean(p.isJoined));
+        const list = (Array.isArray(rows) ? rows : []).filter((p) =>
+          Boolean(p.isJoined),
+        );
         setCampusPlans(list);
       })
       .catch(() => {
@@ -102,9 +104,15 @@ export default function Chat() {
 
         if (list.length === 0) {
           setSelectedUserId(null);
-        } else if (preferredUserId && list.some((x) => x.userId === preferredUserId)) {
+        } else if (
+          preferredUserId &&
+          list.some((x) => x.userId === preferredUserId)
+        ) {
           setSelectedUserId(preferredUserId);
-        } else if (!selectedUserId || !list.some((x) => x.userId === selectedUserId)) {
+        } else if (
+          !selectedUserId ||
+          !list.some((x) => x.userId === selectedUserId)
+        ) {
           setSelectedUserId(list[0].userId);
         }
       } catch (err) {
@@ -136,11 +144,15 @@ export default function Chat() {
     async function pollMessages() {
       try {
         setLoadingMessages(true);
-        const data = await api<ChatMessage[]>(`/chat/${selectedUserId}/messages`);
+        const data = await api<ChatMessage[]>(
+          `/chat/${selectedUserId}/messages`,
+        );
         if (!cancelled) setMessages(Array.isArray(data) ? data : []);
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Failed to load messages");
+          setError(
+            err instanceof Error ? err.message : "Failed to load messages",
+          );
         }
       } finally {
         if (!cancelled) {
@@ -167,8 +179,10 @@ export default function Chat() {
         !selectedUserId ||
         !myIdRef.current ||
         !(
-          (payload.fromUserId === selectedUserId && payload.toUserId === myIdRef.current) ||
-          (payload.toUserId === selectedUserId && payload.fromUserId === myIdRef.current)
+          (payload.fromUserId === selectedUserId &&
+            payload.toUserId === myIdRef.current) ||
+          (payload.toUserId === selectedUserId &&
+            payload.fromUserId === myIdRef.current)
         )
       ) {
         return;
@@ -215,11 +229,13 @@ export default function Chat() {
 
   const selectedConversation = useMemo(
     () => conversations.find((c) => c.userId === selectedUserId) || null,
-    [conversations, selectedUserId]
+    [conversations, selectedUserId],
   );
 
   const myLastMessage = useMemo(() => {
-    const mine = [...messages].reverse().find((m) => m.toUserId === selectedUserId);
+    const mine = [...messages]
+      .reverse()
+      .find((m) => m.toUserId === selectedUserId);
     return mine || null;
   }, [messages, selectedUserId]);
 
@@ -290,7 +306,9 @@ export default function Chat() {
   }
 
   return (
-    <div className={`min-h-screen ${mode === "dating" ? datingBg : campusBg} px-2 sm:px-4 py-4 sm:py-6`}>
+    <div
+      className={`min-h-screen ${mode === "dating" ? datingBg : campusBg} px-2 sm:px-4 py-4 sm:py-6`}
+    >
       <div className="max-w-6xl mx-auto mb-3">
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
           {mode === "campus" ? "Campus Chats" : "Dating Chats"}
@@ -299,17 +317,25 @@ export default function Chat() {
 
       {mode === "campus" ? (
         <div className="max-w-6xl mx-auto bg-white rounded-2xl border border-slate-100 shadow-sm p-4 sm:p-6">
-          <h2 className="text-xl font-black text-slate-900">Campus Plan Chats</h2>
+          <h2 className="text-xl font-black text-slate-900">
+            Campus Plan Chats
+          </h2>
           <p className="mt-1 text-sm text-slate-600">
             Open chat rooms for plans you joined.
           </p>
           {campusPlans.length === 0 ? (
-            <p className="mt-4 text-sm text-slate-500">No joined plan chats yet.</p>
+            <p className="mt-4 text-sm text-slate-500">
+              No joined plan chats yet.
+            </p>
           ) : (
             <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
               {campusPlans.map((plan) => {
-                const started = plan.startAt ? parseServerDate(plan.startAt).getTime() < Date.now() : false;
-                const completed = String(plan.status ?? "").toLowerCase() === "completed" || started;
+                const started = plan.startAt
+                  ? parseServerDate(plan.startAt).getTime() < Date.now()
+                  : false;
+                const completed =
+                  String(plan.status ?? "").toLowerCase() === "completed" ||
+                  started;
                 return (
                   <button
                     key={plan.id}
@@ -317,7 +343,9 @@ export default function Chat() {
                     onClick={() => navigate(`/plans/${plan.id}/chat`)}
                     className="text-left rounded-xl border border-slate-200 bg-slate-50 p-3 hover:bg-slate-100 transition"
                   >
-                    <p className="text-sm font-semibold text-slate-900">{plan.title}</p>
+                    <p className="text-sm font-semibold text-slate-900">
+                      {plan.title}
+                    </p>
                     <p className="text-xs text-slate-500 mt-1">
                       {plan.startAt
                         ? parseServerDate(plan.startAt).toLocaleString([], {
@@ -330,7 +358,9 @@ export default function Chat() {
                     </p>
                     <span
                       className={`mt-2 inline-block text-[11px] px-2 py-0.5 rounded-full ${
-                        completed ? "bg-slate-200 text-slate-600" : "bg-orange-100 text-orange-700"
+                        completed
+                          ? "bg-slate-200 text-slate-600"
+                          : "bg-orange-100 text-orange-700"
                       }`}
                     >
                       {completed ? "Completed" : "Open chat"}
@@ -342,154 +372,195 @@ export default function Chat() {
           )}
         </div>
       ) : (
-      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-[300px_1fr] gap-3 sm:gap-4">
-        <aside className="bg-white rounded-2xl border border-slate-100 p-3 shadow-sm">
-          <h2 className="text-lg font-bold text-slate-900 px-2 py-1">Chats</h2>
-          {loadingConversations ? (
-            <p className="px-2 py-4 text-sm text-slate-500">Loading chats...</p>
-          ) : conversations.length === 0 ? (
-            <p className="px-2 py-4 text-sm text-slate-500">No chats yet.</p>
-          ) : (
-            <div className="mt-2 space-y-1">
-              {conversations.map((c) => (
-                <button
-                  key={c.userId}
-                  type="button"
-                  onClick={() => {
-                    setSelectedUserId(c.userId);
-                    setSearchParams({ mode: "dating", userId: String(c.userId) });
-                  }}
-                  className={`w-full text-left px-2 py-2 rounded-xl transition ${
-                    c.userId === selectedUserId ? "bg-rose-100" : "hover:bg-slate-50"
-                  }`}
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-semibold text-slate-900 truncate">
-                      {c.fullName}
-                    </span>
-                    {(c.unreadCount ?? 0) > 0 && (
-                      <span className="text-[11px] bg-rose-500 text-white rounded-full px-2 py-0.5">
-                        {c.unreadCount}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-xs text-slate-500 truncate mt-1">
-                    {c.lastMessage || "Start chatting"}
-                  </p>
-                </button>
-              ))}
-            </div>
-          )}
-        </aside>
-
-        <section className="bg-white rounded-2xl border border-slate-100 shadow-sm flex flex-col min-h-[76vh]">
-          <header className="px-4 py-3 border-b border-slate-100">
-            <h3 className="font-bold text-slate-900">
-              {selectedConversation ? selectedConversation.fullName : "Select a chat"}
-            </h3>
-            {selectedConversation && (
-              <p className="text-xs text-slate-500">Age {selectedConversation.age}</p>
-            )}
-          </header>
-
-          <div className="flex-1 overflow-y-auto px-3 sm:px-4 py-4 space-y-2">
-            {error && (
-              <p className="text-xs text-rose-700 bg-rose-50 border border-rose-100 rounded-lg p-2">
-                {error}
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-[300px_1fr] gap-3 sm:gap-4">
+          <aside className="bg-white rounded-2xl border border-slate-100 p-3 shadow-sm">
+            <h2 className="text-lg font-bold text-slate-900 px-2 py-1">
+              Chats
+            </h2>
+            {loadingConversations ? (
+              <p className="px-2 py-4 text-sm text-slate-500">
+                Loading chats...
               </p>
-            )}
-            {loadingMessages && selectedUserId && (
-              <p className="text-xs text-slate-500">Syncing messages...</p>
-            )}
-            {selectedUserId && messages.length === 0 && !loadingMessages && (
-              <p className="text-sm text-slate-500">Say hi to start the conversation.</p>
-            )}
-            {messages.map((m) => {
-              const mine = m.toUserId === selectedUserId;
-              return (
-                <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
-                  <div
-                    className={`max-w-[84%] sm:max-w-[78%] px-3 py-2 rounded-2xl ${
-                      mine
-                        ? "bg-rose-500 text-white rounded-br-md"
-                        : "bg-slate-100 text-slate-900 rounded-bl-md"
+            ) : conversations.length === 0 ? (
+              <p className="px-2 py-4 text-sm text-slate-500">No chats yet.</p>
+            ) : (
+              <div className="mt-2 space-y-1">
+                {conversations.map((c) => (
+                  <button
+                    key={c.userId}
+                    type="button"
+                    onClick={() => {
+                      setSelectedUserId(c.userId);
+                      setSearchParams({
+                        mode: "dating",
+                        userId: String(c.userId),
+                      });
+                    }}
+                    className={`w-full text-left px-2 py-2 rounded-xl transition ${
+                      c.userId === selectedUserId
+                        ? "bg-rose-100"
+                        : "hover:bg-slate-50"
                     }`}
                   >
-                    {m.type === "image" ? (
-                      <a href={m.text} target="_blank" rel="noreferrer">
-                        <img
-                          src={m.text}
-                          alt="Chat upload"
-                          className="max-h-64 rounded-lg object-cover border border-slate-200"
-                        />
-                      </a>
-                    ) : (
-                      <p className="text-sm whitespace-pre-wrap break-words">{m.text}</p>
-                    )}
-                    <p
-                      className={`text-[10px] mt-1 ${
-                        mine ? "text-rose-100" : "text-slate-500"
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-sm font-semibold text-slate-900 truncate">
+                        {c.fullName}
+                      </span>
+                      {(c.unreadCount ?? 0) > 0 && (
+                        <span className="text-[11px] bg-rose-500 text-white rounded-full px-2 py-0.5">
+                          {c.unreadCount}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-500 truncate mt-1">
+                      {c.lastMessage || "Start chatting"}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            )}
+          </aside>
+
+          <section className="bg-white rounded-2xl border border-slate-100 shadow-sm flex flex-col min-h-[76vh]">
+            <header className="px-4 py-3 border-b border-slate-100">
+              <h3 className="font-bold text-slate-900">
+                {selectedConversation
+                  ? selectedConversation.fullName
+                  : "Select a chat"}
+              </h3>
+              {selectedConversation && (
+                <p className="text-xs text-slate-500">
+                  Age {selectedConversation.age}
+                </p>
+              )}
+            </header>
+
+            <div className="flex-1 overflow-y-auto px-3 sm:px-4 py-4 space-y-2">
+              {error && (
+                <p className="text-xs text-rose-700 bg-rose-50 border border-rose-100 rounded-lg p-2">
+                  {error}
+                </p>
+              )}
+              {loadingMessages && selectedUserId && (
+                <p className="text-xs text-slate-500">Syncing messages...</p>
+              )}
+              {selectedUserId && messages.length === 0 && !loadingMessages && (
+                <p className="text-sm text-slate-500">
+                  Say hi to start the conversation.
+                </p>
+              )}
+              {messages.map((m) => {
+                const mine = m.toUserId === selectedUserId;
+                return (
+                  <div
+                    key={m.id}
+                    className={`flex ${mine ? "justify-end" : "justify-start"}`}
+                  >
+                    <div
+                      className={`max-w-[84%] sm:max-w-[78%] px-3 py-2 rounded-2xl flex flex-col items-end ${
+                        mine
+                          ? "bg-rose-500 text-white rounded-br-md"
+                          : "bg-slate-100 text-slate-900 rounded-bl-md"
                       }`}
                     >
-                      {parseServerDate(m.createdAt).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
+                      {m.type === "image" ? (
+                        <a
+                          href={m.text}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="block max-w-[200px] sm:max-w-xs mt-1 overflow-hidden rounded-lg"
+                        >
+                          <img
+                            src={m.text}
+                            alt="Unloaded chat image"
+                            className="w-full h-auto object-cover max-h-64"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display =
+                                "none";
+                              const p = document.createElement("p");
+                              p.textContent = "Image failed to load";
+                              p.className = "text-xs text-rose-200 mt-1";
+                              (
+                                e.target as HTMLImageElement
+                              ).parentElement?.appendChild(p);
+                            }}
+                          />
+                        </a>
+                      ) : (
+                        <p
+                          className={`text-sm whitespace-pre-wrap break-words w-full ${!mine && "text-slate-800"}`}
+                        >
+                          {m.text}
+                        </p>
+                      )}
+                      <p
+                        className={`text-[10px] mt-1 ${
+                          mine ? "text-rose-100" : "text-slate-500"
+                        }`}
+                      >
+                        {parseServerDate(m.createdAt).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-            {typingPeerId && (
-              <p className="text-xs text-slate-500 px-1">Typing...</p>
-            )}
-            <div ref={bottomRef} />
-          </div>
+                );
+              })}
+              {typingPeerId && (
+                <p className="text-xs text-slate-500 px-1">Typing...</p>
+              )}
+              <div ref={bottomRef} />
+            </div>
 
-          <footer className="border-t border-slate-100 p-3">
-            {selectedUserId && myLastMessage && (
-              <p className="text-[11px] text-slate-500 mb-2">
-                {myLastMessage.seenAt ? "Seen" : "Sent"}
-              </p>
-            )}
-            <form onSubmit={sendMessage} className="flex gap-2">
-              <input
-                ref={imageInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) void uploadAndSendImage(file);
-                }}
-              />
-              <button
-                type="button"
-                disabled={!selectedUserId || uploadingImage}
-                onClick={() => imageInputRef.current?.click()}
-                className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 text-sm font-semibold disabled:opacity-50"
-              >
-                {uploadingImage ? "Uploading..." : "Image"}
-              </button>
-              <input
-                type="text"
-                value={text}
-                disabled={!selectedUserId || uploadingImage}
-                onChange={(e) => handleTyping(e.target.value)}
-                className="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-sm"
-                placeholder={selectedUserId ? "Write a message..." : "Select a chat first"}
-              />
-              <button
-                type="submit"
-                disabled={!selectedUserId || !text.trim() || uploadingImage}
-                className="px-4 py-2 rounded-xl bg-rose-500 text-white text-sm font-semibold disabled:opacity-50"
-              >
-                Send
-              </button>
-            </form>
-          </footer>
-        </section>
-      </div>
+            <footer className="border-t border-slate-100 p-3">
+              {selectedUserId && myLastMessage && (
+                <p className="text-[11px] text-slate-500 mb-2">
+                  {myLastMessage.seenAt ? "Seen" : "Sent"}
+                </p>
+              )}
+              <form onSubmit={sendMessage} className="flex gap-2">
+                <input
+                  ref={imageInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) void uploadAndSendImage(file);
+                  }}
+                />
+                <button
+                  type="button"
+                  disabled={!selectedUserId || uploadingImage}
+                  onClick={() => imageInputRef.current?.click()}
+                  className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 text-sm font-semibold disabled:opacity-50"
+                >
+                  {uploadingImage ? "Uploading..." : "Image"}
+                </button>
+                <input
+                  type="text"
+                  value={text}
+                  disabled={!selectedUserId || uploadingImage}
+                  onChange={(e) => handleTyping(e.target.value)}
+                  className="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-sm"
+                  placeholder={
+                    selectedUserId
+                      ? "Write a message..."
+                      : "Select a chat first"
+                  }
+                />
+                <button
+                  type="submit"
+                  disabled={!selectedUserId || !text.trim() || uploadingImage}
+                  className="px-4 py-2 rounded-xl bg-rose-500 text-white text-sm font-semibold disabled:opacity-50"
+                >
+                  Send
+                </button>
+              </form>
+            </footer>
+          </section>
+        </div>
       )}
     </div>
   );

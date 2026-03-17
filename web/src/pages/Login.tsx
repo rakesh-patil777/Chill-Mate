@@ -16,7 +16,8 @@ type FormErrors = {
   password?: string;
 };
 
-const COLLEGE_EMAIL_REGEX = /^[a-zA-Z]+\.[a-zA-Z0-9]+@presidencyuniversity\.in$/i;
+const COLLEGE_EMAIL_REGEX =
+  /^[a-zA-Z]+\.[a-zA-Z0-9]+@presidencyuniversity\.in$/i;
 
 const STRONG_PASSWORD_REGEX =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^()_\-+=])[A-Za-z\d@$!%*?&#^()_\-+=]{8,}$/;
@@ -72,7 +73,7 @@ function ForgotPasswordModal({
 
     setLoading(true);
     try {
-      const result = await api<ForgotResponse>("/auth/forgot", {
+      const result = await api<ForgotResponse>("/forgot", {
         method: "POST",
         body: JSON.stringify({ email: email.trim() }),
       });
@@ -145,7 +146,7 @@ export default function Login() {
 
   const isPasswordStrong = useMemo(
     () => (password ? STRONG_PASSWORD_REGEX.test(password) : true),
-    [password]
+    [password],
   );
 
   function validate() {
@@ -170,7 +171,7 @@ export default function Login() {
     setLoading(true);
     try {
       const normalizedCollegeId = identifier.trim().toLowerCase();
-      const data = await api<LoginResponse>("/auth/login", {
+      const data = await api<LoginResponse>("/login", {
         method: "POST",
         body: JSON.stringify({ collegeId: normalizedCollegeId, password }),
       });
@@ -191,7 +192,7 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-rose-200 via-pink-200 to-purple-200">
+    <div className="flex flex-col flex-1 h-full min-h-full w-full bg-gradient-to-br from-rose-200 via-pink-200 to-purple-200 overflow-hidden">
       <style>{`
         @keyframes fadeInUp {
           from { opacity: 0; transform: translateY(12px); }
@@ -203,9 +204,9 @@ export default function Login() {
         }
       `}</style>
 
-      <div className="grid min-h-screen w-full xl:grid-cols-2">
+      <div className="grid flex-1 w-full lg:grid-cols-2 h-full">
         <aside
-          className="relative hidden xl:block"
+          className="relative hidden lg:block h-full"
           style={{
             backgroundImage:
               "linear-gradient(180deg, rgba(23,18,44,0.62), rgba(43,15,45,0.68)), url('https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=1800&q=80')",
@@ -221,7 +222,7 @@ export default function Login() {
               <p className="inline-block rounded-full border border-white/30 bg-white/10 px-4 py-1 text-sm font-medium backdrop-blur">
                 Chill Mate
               </p>
-              <h1 className="mt-6 text-5xl font-black leading-tight drop-shadow-lg xl:text-6xl">
+              <h1 className="mt-6 text-5xl font-black leading-tight drop-shadow-lg lg:text-6xl">
                 Where Campus Meets Connection
               </h1>
               <p className="mt-4 max-w-lg text-lg text-white/90">
@@ -232,11 +233,15 @@ export default function Login() {
           </div>
         </aside>
 
-        <main className="flex items-center justify-center px-4 py-8 sm:px-8">
+        <main className="flex items-center justify-center px-4 py-8 sm:px-8 h-full overflow-y-auto">
           <div className="relative w-[420px] max-w-full">
             <div className="w-full animate-[fadeInUp_0.55s_ease] rounded-3xl border border-white/30 bg-white/70 p-6 shadow-2xl shadow-pink-300/30 backdrop-blur-xl sm:p-8">
-              <h2 className="text-3xl font-black text-slate-900">Welcome back</h2>
-              <p className="mt-1 text-slate-600">Log in to continue to Chill Mate</p>
+              <h2 className="text-3xl font-black text-slate-900">
+                Welcome back
+              </h2>
+              <p className="mt-1 text-slate-600">
+                Log in to continue to Chill Mate
+              </p>
 
               {error && (
                 <p className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
@@ -255,7 +260,10 @@ export default function Login() {
                     onChange={(e) => {
                       setIdentifier(e.target.value);
                       if (formError.identifier) {
-                        setFormError((prev) => ({ ...prev, identifier: undefined }));
+                        setFormError((prev) => ({
+                          ...prev,
+                          identifier: undefined,
+                        }));
                       }
                     }}
                     onKeyDown={(e) => {
@@ -273,7 +281,9 @@ export default function Login() {
                     Format: name.collegeid@presidencyuniversity.in
                   </p>
                   {formError.identifier && (
-                    <p className="mt-1 text-xs text-rose-600">{formError.identifier}</p>
+                    <p className="mt-1 text-xs text-rose-600">
+                      {formError.identifier}
+                    </p>
                   )}
                 </div>
 
@@ -289,7 +299,10 @@ export default function Login() {
                       onChange={(e) => {
                         setPassword(e.target.value);
                         if (formError.password) {
-                          setFormError((prev) => ({ ...prev, password: undefined }));
+                          setFormError((prev) => ({
+                            ...prev,
+                            password: undefined,
+                          }));
                         }
                       }}
                       placeholder="Enter your password"
@@ -300,7 +313,9 @@ export default function Login() {
                     <button
                       type="button"
                       onClick={() => setShowPassword((v) => !v)}
-                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
                       className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg px-2 py-1 text-sm font-semibold text-slate-500 transition hover:bg-slate-100"
                     >
                       {showPassword ? "Hide" : "Show"}
@@ -312,11 +327,14 @@ export default function Login() {
                       isPasswordStrong ? "text-slate-500" : "text-amber-700"
                     }`}
                   >
-                    Use at least 8 chars with upper, lower, number, and special symbol.
+                    Use at least 8 chars with upper, lower, number, and special
+                    symbol.
                   </p>
 
                   {formError.password && (
-                    <p className="mt-1 text-xs text-rose-600">{formError.password}</p>
+                    <p className="mt-1 text-xs text-rose-600">
+                      {formError.password}
+                    </p>
                   )}
                 </div>
 
@@ -355,12 +373,15 @@ export default function Login() {
                   Register
                 </Link>
               </p>
-              </div>
+            </div>
           </div>
         </main>
       </div>
 
-      <ForgotPasswordModal open={forgotOpen} onClose={() => setForgotOpen(false)} />
+      <ForgotPasswordModal
+        open={forgotOpen}
+        onClose={() => setForgotOpen(false)}
+      />
     </div>
   );
 }

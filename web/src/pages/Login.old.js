@@ -13,7 +13,7 @@ export default function Login() {
         e.preventDefault();
         setError(null);
         try {
-            const { token } = await api('/auth/login', {
+            const { token } = await api('/login', {
                 method: 'POST',
                 body: JSON.stringify({ collegeId, password })
             });

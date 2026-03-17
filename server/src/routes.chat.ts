@@ -11,7 +11,7 @@ const router = Router();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const uploadsDir = path.join(__dirname, "..", "public", "uploads");
 fs.mkdirSync(uploadsDir, { recursive: true });
-const BASE_URL = process.env.BASE_URL || "http://13.205.125.63:4000";
+const BASE_URL = process.env.NODE_ENV === "production" ? (process.env.BASE_URL || "https://chillmate.in") : "http://localhost:4000";
 
 const chatUploadStorage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, uploadsDir),

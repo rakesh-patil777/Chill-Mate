@@ -13,7 +13,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const uploadsDir = path.join(__dirname, "..", "public", "uploads");
 fs.mkdirSync(uploadsDir, { recursive: true });
 
-const BASE_URL = process.env.BASE_URL || "http://13.205.125.63:4000";
+const BASE_URL = process.env.NODE_ENV === "production" ? (process.env.BASE_URL || "https://chillmate.in") : "http://localhost:4000";
 
 const planChatStorage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, uploadsDir),
@@ -53,15 +53,15 @@ function listPlans(userId: number) {
       LIMIT 100`
     )
     .all(userId) as Array<{
-    id: number;
-    hostUserId: number;
-    startAt?: string | null;
-    status?: string | null;
-    attendeeCount?: number;
-    maxGuests?: number | null;
-    isJoined?: number;
-    [k: string]: unknown;
-  }>;
+      id: number;
+      hostUserId: number;
+      startAt?: string | null;
+      status?: string | null;
+      attendeeCount?: number;
+      maxGuests?: number | null;
+      isJoined?: number;
+      [k: string]: unknown;
+    }>;
 
   return rows.map((row) => {
     const attendeeCount = Number(row.attendeeCount ?? 0);
@@ -228,17 +228,17 @@ router.get("/:id", auth, (req: AuthenticatedRequest, res) => {
       )
       .get(planId) as
       | {
-          id: number;
-          title: string;
-          description?: string | null;
-          location?: string | null;
-          startAt?: string | null;
-          maxGuests?: number | null;
-          status?: string | null;
-          hostId: number;
-          hostFullName: string;
-          hostAvatarUrl?: string | null;
-        }
+        id: number;
+        title: string;
+        description?: string | null;
+        location?: string | null;
+        startAt?: string | null;
+        maxGuests?: number | null;
+        status?: string | null;
+        hostId: number;
+        hostFullName: string;
+        hostAvatarUrl?: string | null;
+      }
       | undefined;
 
     if (!plan) {
@@ -260,12 +260,12 @@ router.get("/:id", auth, (req: AuthenticatedRequest, res) => {
         ORDER BY pa.joinedAt ASC`
       )
       .all(planId) as Array<{
-      id: number;
-      fullName: string;
-      avatarUrl?: string | null;
-      attended?: number;
-      markedByHost?: number;
-    }>;
+        id: number;
+        fullName: string;
+        avatarUrl?: string | null;
+        attended?: number;
+        markedByHost?: number;
+      }>;
 
     const attendeeCount = attendees.length;
     const isJoined = attendees.some((a) => a.id === userId);
