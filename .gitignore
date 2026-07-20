@@ -38,7 +38,7 @@ yarn-error.log*
 coverage/
 
 # Production artifacts and runtime DB files
-server/chillmate.db
+# server/chillmate.db   ← temporarily committed for Render demo (re-enable after migrating to PostgreSQL)
 server/*.db-shm
 server/*.db-wal
 server/*.db-journal
