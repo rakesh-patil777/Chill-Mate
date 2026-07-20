@@ -1,6 +1,5 @@
 import "dotenv/config";
 import path from "path";
-import { fileURLToPath } from "url";
 import http from "http";
 import express from "express";
 import cors from "cors";
@@ -157,12 +156,9 @@ const healthHandler = (_req: express.Request, res: express.Response) => {
 app.get("/health", healthHandler);
 app.get("/api/health", healthHandler);
 
-// Serve frontend static files
-app.use(express.static(path.join(__dirname, "public")));
-
-// React fallback (MUST BE LAST)
-app.get("*", (_req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+// API-only: no frontend static serving (frontend is on Vercel)
+app.use((_req, res) => {
+  res.status(404).json({ error: "Not found" });
 });
 
 app.use(
