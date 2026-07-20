@@ -34,6 +34,7 @@ app.set("trust proxy", 1);
 const isAllowedOrigin = (origin: string): boolean => {
   if (
     origin === "https://chillmate.in" ||
+    origin === "https://www.chillmate.in" ||
     origin === "http://chillmate.in" ||
     origin === "https://api.chillmate.in" ||
     origin === "http://api.chillmate.in" ||
