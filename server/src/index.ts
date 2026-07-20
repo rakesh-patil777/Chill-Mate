@@ -25,25 +25,65 @@ import configRouter from "./routes.config.js";
 import feedbackRouter from "./routes.feedback.js";
 import { initSocket } from "./socket.js";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const __dirname = path.resolve();
 const app = express();
 const NODE_ENV = process.env.NODE_ENV || "development";
 const isProduction = NODE_ENV === "production";
 
 app.set("trust proxy", 1);
 
+const isAllowedOrigin = (origin: string): boolean => {
+  if (
+    origin === "https://chillmate.in" ||
+    origin === "http://chillmate.in" ||
+    origin === "https://api.chillmate.in" ||
+    origin === "http://api.chillmate.in" ||
+    origin === "http://localhost:5173"
+  ) {
+    return true;
+  }
+
+  // Support Vercel Preview Deployments (wildcards)
+  if (/^https:\/\/.*\.vercel\.app$/.test(origin)) {
+    return true;
+  }
+
+  // Support configured frontend URL
+  if (process.env.FRONTEND_URL) {
+    const extraOrigins = process.env.FRONTEND_URL.split(",").map((o) => o.trim());
+    if (extraOrigins.includes(origin)) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+const corsOptions = {
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    if (!origin || isAllowedOrigin(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+};
+
 app.use(
   helmet({
     crossOriginResourcePolicy: false,
-  })
+  }),
 );
 
-app.use(
-  cors({
-    origin: ["http://localhost:5173", "https://chillmate.in"],
-    credentials: true,
-  })
-);
+app.use(cors(corsOptions));
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "*");
+  next();
+});
+
 app.use(express.json({ limit: "100kb" }));
 app.use(express.urlencoded({ extended: false, limit: "100kb" }));
 
@@ -52,6 +92,7 @@ const globalLimiter = rateLimit({
   max: 100,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: () => !isProduction,
 });
 app.use(globalLimiter);
 
@@ -60,14 +101,20 @@ app.use((req, res, next) => {
   res.on("finish", () => {
     const durationMs = Date.now() - startedAt;
     if (req.method === "GET" && res.statusCode < 400) return;
-    console.log(`${req.method} ${req.originalUrl} ${res.statusCode} ${durationMs}ms`);
+    console.log(
+      `${req.method} ${req.originalUrl} ${res.statusCode} ${durationMs}ms`,
+    );
   });
   next();
 });
 
 app.use((req, res, next) => {
   const originalCookie = res.cookie.bind(res);
-  (res as any).cookie = (name: string, value: any, options: Record<string, any> = {}) =>
+  (res as any).cookie = (
+    name: string,
+    value: any,
+    options: Record<string, any> = {},
+  ) =>
     originalCookie(name, value, {
       httpOnly: true,
       secure: isProduction,
@@ -77,14 +124,14 @@ app.use((req, res, next) => {
   next();
 });
 
-const uploadsDir = path.join(__dirname, "..", "public", "uploads");
+const uploadsDir = path.join(__dirname, "public", "uploads");
 app.locals.uploadsBaseUrl = process.env.UPLOADS_BASE_URL || "";
 app.use(
   "/uploads",
   express.static(uploadsDir, {
     etag: true,
     maxAge: isProduction ? "7d" : 0,
-  })
+  }),
 );
 
 const mountRoutes = (prefix = "") => {
@@ -116,25 +163,29 @@ const healthHandler = (_req: express.Request, res: express.Response) => {
 app.get("/health", healthHandler);
 app.get("/api/health", healthHandler);
 
-app.get("/", (_req, res) => {
-  res.send("ChillMate API is running");
+// Serve frontend static files
+app.use(express.static(path.join(__dirname, "public")));
+
+// React fallback (MUST BE LAST)
+app.get("*", (_req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-app.use((_req, res) => {
-  res.status(404).json({ error: "Route not found" });
-});
-
-app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  console.error("Unhandled server error:", err);
-  res.status(500).json({ error: "Internal server error" });
-});
+app.use(
+  (
+    err: unknown,
+    _req: express.Request,
+    res: express.Response,
+    _next: express.NextFunction,
+  ) => {
+    console.error("Unhandled server error:", err);
+    res.status(500).json({ error: "Internal server error" });
+  },
+);
 
 const server = http.createServer(app);
 const io = new IOServer(server, {
-  cors: {
-    origin: ["http://localhost:5173", "https://chillmate.in"],
-    credentials: true,
-  },
+  cors: corsOptions,
 });
 initSocket(io);
 

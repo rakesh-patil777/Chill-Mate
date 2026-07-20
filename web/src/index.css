@@ -1,12 +1,15 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --brand: #ec4899;
-  --accent: #f97316;
+  --brand: #f43f5e;     /* Rose Gold / Hot Pink */
+  --accent: #f59e0b;    /* Sunlight Amber */
+  --secondary: #6366f1; /* Neon Indigo / Violet */
+  --glass-white: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.4);
 }
 
 html,
@@ -15,15 +18,58 @@ body,
   height: 100%;
   min-height: 100%;
 }
+
 body {
   margin: 0;
-  font-family:
-    "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace;
-  background: #fce7f3;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: #fdf7ff;
 }
+
 #root {
-  background: #fce7f3;
+  background: #fdf7ff;
+}
+
+/* Typography styles */
+h1, h2, h3, h4, h5, h6, .font-display {
+  font-family: 'Outfit', sans-serif;
+}
+
+/* Glassmorphism Styles */
+.glass-panel {
+  background: var(--glass-white);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 32px 0 rgba(244, 63, 94, 0.08);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 4px 20px 0 rgba(31, 38, 135, 0.05);
+}
+
+/* Button & Element Soft Glows */
+.soft-glow-brand {
+  box-shadow: 0 10px 25px -5px rgba(244, 63, 94, 0.4);
+}
+
+.soft-glow-secondary {
+  box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
+}
+
+.soft-glow-accent {
+  box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.4);
+}
+
+/* Hover effects */
+.hover-lift {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.hover-lift:hover {
+  transform: translateY(-4px);
 }
 
 /* Custom utilities */
@@ -34,36 +80,23 @@ body {
   overflow: hidden;
 }
 
-/* Removed smooth scrolling to fix performance lag */
-
-/* Make desktop 100% feel closer to browser 80%-85% zoom */
-@media (min-width: 1200px) {
-  html {
-    zoom: 0.8;
-  }
-}
-
-/* Focus styles */
-*:focus {
-  outline: none;
-}
-
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #ec4899;
+  background: var(--brand);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #db2777;
+  background: #dc2626;
 }
 
 @keyframes fadeIn {

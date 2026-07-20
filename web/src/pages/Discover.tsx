@@ -11,6 +11,7 @@ export default function Discover() {
     year: undefined,
   });
   const [showFilters, setShowFilters] = useState(false);
+  
   const activeCount = [
     filters.minAge,
     filters.maxAge,
@@ -23,101 +24,134 @@ export default function Discover() {
   ).length;
 
   return (
-    <div className="flex flex-col min-h-[calc(100vh-64px)] overflow-x-hidden overflow-y-auto bg-[radial-gradient(1200px_380px_at_50%_-120px,rgba(190,24,93,0.24),transparent),linear-gradient(120deg,#f5d0fe_0%,#fbcfe8_45%,#ddd6fe_100%)] px-2 sm:px-4 py-2 sm:py-4 relative">
-      <div className="max-w-4xl mx-auto w-full flex flex-col items-center flex-1 h-full">
-        <div className="text-center mb-2 shrink-0 relative w-full">
-          <p className="text-xs uppercase tracking-[0.35em] text-rose-600 font-semibold">
-            Discover
+    <div className="flex flex-col min-h-[calc(100vh-64px)] overflow-x-hidden overflow-y-auto bg-gradient-to-br from-rose-50 via-pink-100 to-indigo-100 px-4 py-6 relative font-sans">
+      {/* Decorative background mesh blooms */}
+      <div className="absolute top-[-10%] left-[5%] w-[45vw] h-[45vw] rounded-full bg-pink-300/10 blur-3xl pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[5%] w-[50vw] h-[50vw] rounded-full bg-indigo-300/10 blur-3xl pointer-events-none" />
+      
+      <div className="max-w-md mx-auto w-full flex flex-col items-center flex-1 relative z-10">
+        
+        {/* Header */}
+        <div className="text-center mb-4 shrink-0">
+          <p className="text-xs uppercase tracking-[0.25em] text-rose-600 font-extrabold font-display">
+            Discover Vibe
           </p>
-          <h1 className="mt-1 text-2xl sm:text-3xl font-black text-slate-900">
+          <h1 className="mt-1 text-3xl font-black text-slate-900 font-display">
             Swipe To Connect
           </h1>
         </div>
 
-        <div className="mb-2 sm:mb-3 shrink-0 relative w-full flex flex-col items-center">
+        {/* Filter Toggle Button */}
+        <div className="mb-6 shrink-0 relative w-full flex flex-col items-center">
           <button
             type="button"
             onClick={() => setShowFilters((v) => !v)}
-            className="block rounded-full px-5 py-2 text-sm font-semibold bg-white/85 border border-white/80 shadow-sm text-slate-700 hover:border-pink-300 transition"
+            className="flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold bg-white/80 border border-white/90 shadow-sm text-slate-700 hover:border-pink-300 hover:text-rose-600 transition-all duration-300"
           >
-            Filters {activeCount > 0 ? `(${activeCount})` : ""}
+            <span>⚙️</span>
+            <span>Filters</span>
+            {activeCount > 0 && (
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-[11px] font-bold text-white leading-none">
+                {activeCount}
+              </span>
+            )}
           </button>
 
+          {/* Filter Dropdown (Glassmorphism Card) */}
           {showFilters && (
-            <div className="absolute top-12 left-1/2 -translate-x-1/2 w-[calc(100vw-2rem)] max-w-lg mt-2 mx-auto z-50">
-              <div className="rounded-2xl border border-white/80 bg-white/95 backdrop-blur-sm shadow-xl p-3 overflow-y-auto max-h-[60vh]">
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  <input
-                    type="number"
-                    value={filters.minAge ?? ""}
-                    onChange={(e) =>
-                      setFilters((f) => ({
-                        ...f,
-                        minAge: Number(e.target.value) || undefined,
-                      }))
-                    }
-                    placeholder="Min age"
-                    className="rounded-xl border border-slate-200 px-3 py-1.5 text-sm"
-                  />
-                  <input
-                    type="number"
-                    value={filters.maxAge ?? ""}
-                    onChange={(e) =>
-                      setFilters((f) => ({
-                        ...f,
-                        maxAge: Number(e.target.value) || undefined,
-                      }))
-                    }
-                    placeholder="Max age"
-                    className="rounded-xl border border-slate-200 px-3 py-1.5 text-sm"
-                  />
-                  <input
-                    type="text"
-                    value={filters.interests ?? ""}
-                    onChange={(e) =>
-                      setFilters((f) => ({ ...f, interests: e.target.value }))
-                    }
-                    placeholder="Interests"
-                    className="rounded-xl border border-slate-200 px-3 py-1.5 text-sm"
-                  />
-                  <select
-                    value={filters.gender ?? ""}
-                    onChange={(e) =>
-                      setFilters((f) => ({
-                        ...f,
-                        gender: e.target.value || undefined,
-                      }))
-                    }
-                    className="rounded-xl border border-slate-200 px-3 py-1.5 text-sm"
-                  >
-                    <option value="">Any gender</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="non-binary">Non-binary</option>
-                  </select>
-                  <input
-                    type="text"
-                    value={filters.branch ?? ""}
-                    onChange={(e) =>
-                      setFilters((f) => ({ ...f, branch: e.target.value }))
-                    }
-                    placeholder="Branch"
-                    className="rounded-xl border border-slate-200 px-3 py-1.5 text-sm"
-                  />
-                  <input
-                    type="number"
-                    value={filters.year ?? ""}
-                    onChange={(e) =>
-                      setFilters((f) => ({
-                        ...f,
-                        year: Number(e.target.value) || undefined,
-                      }))
-                    }
-                    placeholder="Year"
-                    className="rounded-xl border border-slate-200 px-3 py-1.5 text-sm"
-                  />
+            <div className="absolute top-14 w-full z-50 animate-[fadeIn_200ms_ease-out]">
+              <div className="rounded-3xl border border-white/60 bg-white/80 backdrop-blur-xl shadow-xl p-5 max-h-[60vh] overflow-y-auto">
+                <h3 className="text-base font-bold text-slate-800 mb-3.5 font-display">Preferences</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Min Age</label>
+                    <input
+                      type="number"
+                      value={filters.minAge ?? ""}
+                      onChange={(e) =>
+                        setFilters((f) => ({
+                          ...f,
+                          minAge: Number(e.target.value) || undefined,
+                        }))
+                      }
+                      placeholder="e.g. 18"
+                      className="rounded-2xl border border-slate-200/80 bg-white/80 px-3.5 py-2.5 text-sm focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition outline-none"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Max Age</label>
+                    <input
+                      type="number"
+                      value={filters.maxAge ?? ""}
+                      onChange={(e) =>
+                        setFilters((f) => ({
+                          ...f,
+                          maxAge: Number(e.target.value) || undefined,
+                        }))
+                      }
+                      placeholder="e.g. 25"
+                      className="rounded-2xl border border-slate-200/80 bg-white/80 px-3.5 py-2.5 text-sm focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition outline-none"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1 col-span-2">
+                    <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Interests</label>
+                    <input
+                      type="text"
+                      value={filters.interests ?? ""}
+                      onChange={(e) =>
+                        setFilters((f) => ({ ...f, interests: e.target.value }))
+                      }
+                      placeholder="e.g. Music, Coffee, Coding"
+                      className="rounded-2xl border border-slate-200/80 bg-white/80 px-3.5 py-2.5 text-sm focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition outline-none"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Gender</label>
+                    <select
+                      value={filters.gender ?? ""}
+                      onChange={(e) =>
+                        setFilters((f) => ({
+                          ...f,
+                          gender: e.target.value || undefined,
+                        }))
+                      }
+                      className="rounded-2xl border border-slate-200/80 bg-white/80 px-3.5 py-2.5 text-sm focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition outline-none"
+                    >
+                      <option value="">Any gender</option>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Branch</label>
+                    <input
+                      type="text"
+                      value={filters.branch ?? ""}
+                      onChange={(e) =>
+                        setFilters((f) => ({ ...f, branch: e.target.value }))
+                      }
+                      placeholder="e.g. CSE"
+                      className="rounded-2xl border border-slate-200/80 bg-white/80 px-3.5 py-2.5 text-sm focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition outline-none"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1 col-span-2">
+                    <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Year</label>
+                    <input
+                      type="number"
+                      value={filters.year ?? ""}
+                      onChange={(e) =>
+                        setFilters((f) => ({
+                          ...f,
+                          year: Number(e.target.value) || undefined,
+                        }))
+                      }
+                      placeholder="e.g. 2"
+                      className="rounded-2xl border border-slate-200/80 bg-white/80 px-3.5 py-2.5 text-sm focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition outline-none"
+                    />
+                  </div>
                 </div>
-                <div className="mt-3 flex flex-wrap gap-2 justify-end">
+                <div className="mt-5 flex gap-2 justify-end border-t border-slate-200/50 pt-3">
                   <button
                     type="button"
                     onClick={() =>
@@ -130,16 +164,16 @@ export default function Discover() {
                         year: undefined,
                       })
                     }
-                    className="rounded-xl bg-slate-100 text-slate-700 px-3 py-1.5 text-sm font-semibold hover:bg-slate-200"
+                    className="rounded-2xl bg-slate-100 text-slate-700 px-4 py-2.5 text-xs font-semibold hover:bg-slate-200 transition"
                   >
-                    Reset
+                    Reset All
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowFilters(false)}
-                    className="rounded-xl bg-pink-600 text-white px-3 py-1.5 text-sm font-semibold hover:bg-pink-700"
+                    className="rounded-2xl bg-gradient-to-r from-pink-600 to-rose-500 text-white px-5 py-2.5 text-xs font-semibold hover:opacity-95 transition-all shadow-md"
                   >
-                    Apply
+                    Apply Filter
                   </button>
                 </div>
               </div>
@@ -147,7 +181,8 @@ export default function Discover() {
           )}
         </div>
 
-        <div className="flex-1 flex flex-col items-center justify-center w-full min-h-[400px] relative">
+        {/* Swipe Stack Container */}
+        <div className="flex-1 flex flex-col items-center justify-center w-full min-h-[440px] relative">
           <SwipeCards filters={filters} />
         </div>
       </div>

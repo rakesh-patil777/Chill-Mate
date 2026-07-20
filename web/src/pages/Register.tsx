@@ -1,7 +1,8 @@
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 
-const API_URL = "http://localhost:4000/api";
+const API_URL =
+  (import.meta as any).env?.VITE_API_URL || "http://localhost:4000/api";
 
 type ConfigResponse = {
   launchMode?: "open" | "invite-only" | "closed";

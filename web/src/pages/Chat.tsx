@@ -413,7 +413,13 @@ export default function Chat() {
                       )}
                     </div>
                     <p className="text-xs text-slate-500 truncate mt-1">
-                      {c.lastMessage || "Start chatting"}
+                      {c.lastMessage
+                        ? c.lastMessage.startsWith("http://") ||
+                          c.lastMessage.startsWith("https://") ||
+                          c.lastMessage.includes("/uploads/")
+                          ? "📷 Photo"
+                          : c.lastMessage
+                        : "Start chatting"}
                     </p>
                   </button>
                 ))}

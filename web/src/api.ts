@@ -1,4 +1,5 @@
-const API_URL = "http://localhost:4000/api";
+const API_URL =
+  (import.meta as any).env?.VITE_API_URL || "http://localhost:4000/api";
 
 export function authHeader(): Record<string, string> {
   const token = localStorage.getItem("token");
@@ -7,7 +8,7 @@ export function authHeader(): Record<string, string> {
 
 export async function api<T>(
   path: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
 ): Promise<T> {
   const res = await fetch(`${API_URL}${path}`, {
     ...options,
@@ -31,9 +32,7 @@ export async function api<T>(
 /**
  * Upload profile avatar
  */
-export async function uploadAvatar(
-  file: File
-): Promise<{ avatarUrl: string }> {
+export async function uploadAvatar(file: File): Promise<{ avatarUrl: string }> {
   const formData = new FormData();
   formData.append("avatar", file);
 

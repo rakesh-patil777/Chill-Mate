@@ -23,6 +23,7 @@ const loginLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "Too many login attempts. Try again later." },
+  skip: () => process.env.NODE_ENV !== "production",
 });
 
 const registerLimiter = rateLimit({
@@ -31,6 +32,7 @@ const registerLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "Too many registration attempts. Try again later." },
+  skip: () => process.env.NODE_ENV !== "production",
 });
 
 const registerValidation = [
